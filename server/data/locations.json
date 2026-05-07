@@ -1,0 +1,1955 @@
+[
+  {
+    "name": "Beasain",
+    "coords": [
+      43.044265,
+      -2.210098
+    ]
+  },
+  {
+    "name": "Zamudio",
+    "coords": [
+      43.289986,
+      -2.858111
+    ]
+  },
+  {
+    "name": "Madrid",
+    "coords": [
+      40.416775,
+      -3.70379
+    ]
+  },
+  {
+    "name": "Barcelona",
+    "coords": [
+      41.385064,
+      2.173404
+    ]
+  },
+  {
+    "name": "Valencia",
+    "coords": [
+      39.469907,
+      -0.376288
+    ]
+  },
+  {
+    "name": "Sevilla",
+    "coords": [
+      37.389092,
+      -5.984459
+    ]
+  },
+  {
+    "name": "Zaragoza",
+    "coords": [
+      41.648823,
+      -0.889085
+    ]
+  },
+  {
+    "name": "Málaga",
+    "coords": [
+      36.721302,
+      -4.421636
+    ]
+  },
+  {
+    "name": "Murcia",
+    "coords": [
+      37.99224,
+      -1.130654
+    ]
+  },
+  {
+    "name": "Palma",
+    "coords": [
+      39.5696,
+      2.6502
+    ]
+  },
+  {
+    "name": "Las Palmas de Gran Canaria",
+    "coords": [
+      28.123545,
+      -15.436257
+    ]
+  },
+  {
+    "name": "Bilbao",
+    "coords": [
+      43.263012,
+      -2.934985
+    ]
+  },
+  {
+    "name": "Alicante",
+    "coords": [
+      38.345173,
+      -0.48149
+    ]
+  },
+  {
+    "name": "Córdoba",
+    "coords": [
+      37.888176,
+      -4.779383
+    ]
+  },
+  {
+    "name": "Valladolid",
+    "coords": [
+      41.652251,
+      -4.724532
+    ]
+  },
+  {
+    "name": "Vigo",
+    "coords": [
+      42.240599,
+      -8.720727
+    ]
+  },
+  {
+    "name": "Gijón",
+    "coords": [
+      43.532201,
+      -5.66112
+    ]
+  },
+  {
+    "name": "A Coruña",
+    "coords": [
+      43.362344,
+      -8.41154
+    ]
+  },
+  {
+    "name": "Granada",
+    "coords": [
+      37.177336,
+      -3.598557
+    ]
+  },
+  {
+    "name": "Vitoria-Gasteiz",
+    "coords": [
+      42.84674,
+      -2.671634
+    ]
+  },
+  {
+    "name": "Elche",
+    "coords": [
+      38.266887,
+      -0.698387
+    ]
+  },
+  {
+    "name": "Oviedo",
+    "coords": [
+      43.361914,
+      -5.849389
+    ]
+  },
+  {
+    "name": "Badalona",
+    "coords": [
+      41.446988,
+      2.245032
+    ]
+  },
+  {
+    "name": "Cartagena",
+    "coords": [
+      37.625683,
+      -0.996583
+    ]
+  },
+  {
+    "name": "Terrassa",
+    "coords": [
+      41.563211,
+      2.008875
+    ]
+  },
+  {
+    "name": "Jerez de la Frontera",
+    "coords": [
+      36.685006,
+      -6.126074
+    ]
+  },
+  {
+    "name": "Sabadell",
+    "coords": [
+      41.548619,
+      2.107421
+    ]
+  },
+  {
+    "name": "Móstoles",
+    "coords": [
+      40.322337,
+      -3.865718
+    ]
+  },
+  {
+    "name": "Alcalá de Henares",
+    "coords": [
+      40.481979,
+      -3.363542
+    ]
+  },
+  {
+    "name": "Pamplona",
+    "coords": [
+      42.812526,
+      -1.645775
+    ]
+  },
+  {
+    "name": "Fuenlabrada",
+    "coords": [
+      40.283874,
+      -3.800329
+    ]
+  },
+  {
+    "name": "San Sebastián",
+    "coords": [
+      43.318334,
+      -1.981231
+    ]
+  },
+  {
+    "name": "Leganés",
+    "coords": [
+      40.33195,
+      -3.768654
+    ]
+  },
+  {
+    "name": "Santander",
+    "coords": [
+      43.462306,
+      -3.80998
+    ]
+  },
+  {
+    "name": "Castellón de la Plana",
+    "coords": [
+      39.986356,
+      -0.051325
+    ]
+  },
+  {
+    "name": "Burgos",
+    "coords": [
+      42.343992,
+      -3.696906
+    ]
+  },
+  {
+    "name": "Albacete",
+    "coords": [
+      38.994349,
+      -1.858542
+    ]
+  },
+  {
+    "name": "Almería",
+    "coords": [
+      36.834047,
+      -2.463713
+    ]
+  },
+  {
+    "name": "Salamanca",
+    "coords": [
+      40.970104,
+      -5.66354
+    ]
+  },
+  {
+    "name": "Huelva",
+    "coords": [
+      37.261421,
+      -6.944722
+    ]
+  },
+  {
+    "name": "León",
+    "coords": [
+      42.598726,
+      -5.567096
+    ]
+  },
+  {
+    "name": "Cádiz",
+    "coords": [
+      36.527061,
+      -6.288596
+    ]
+  },
+  {
+    "name": "Tarragona",
+    "coords": [
+      41.118882,
+      1.24449
+    ]
+  },
+  {
+    "name": "Lleida",
+    "coords": [
+      41.61759,
+      0.620015
+    ]
+  },
+  {
+    "name": "Jaén",
+    "coords": [
+      37.779594,
+      -3.784906
+    ]
+  },
+  {
+    "name": "Logroño",
+    "coords": [
+      42.462719,
+      -2.444985
+    ]
+  },
+  {
+    "name": "Girona",
+    "coords": [
+      41.9794,
+      2.821426
+    ]
+  },
+  {
+    "name": "Cáceres",
+    "coords": [
+      39.475276,
+      -6.372425
+    ]
+  },
+  {
+    "name": "Badajoz",
+    "coords": [
+      38.87945,
+      -6.970654
+    ]
+  },
+  {
+    "name": "Ourense",
+    "coords": [
+      42.335782,
+      -7.863881
+    ]
+  },
+  {
+    "name": "Santiago de Compostela",
+    "coords": [
+      42.878213,
+      -8.544844
+    ]
+  },
+  {
+    "name": "Lugo",
+    "coords": [
+      43.012086,
+      -7.555851
+    ]
+  },
+  {
+    "name": "Pontevedra",
+    "coords": [
+      42.431,
+      -8.64435
+    ]
+  },
+  {
+    "name": "Toledo",
+    "coords": [
+      39.862832,
+      -4.027323
+    ]
+  },
+  {
+    "name": "Cuenca",
+    "coords": [
+      40.070392,
+      -2.137416
+    ]
+  },
+  {
+    "name": "Guadalajara",
+    "coords": [
+      40.632489,
+      -3.161787
+    ]
+  },
+  {
+    "name": "Segovia",
+    "coords": [
+      40.942903,
+      -4.108807
+    ]
+  },
+  {
+    "name": "Ávila",
+    "coords": [
+      40.656685,
+      -4.681208
+    ]
+  },
+  {
+    "name": "Soria",
+    "coords": [
+      41.7636,
+      -2.46492
+    ]
+  },
+  {
+    "name": "Huesca",
+    "coords": [
+      42.136151,
+      -0.408699
+    ]
+  },
+  {
+    "name": "Teruel",
+    "coords": [
+      40.345041,
+      -1.118474
+    ]
+  },
+  {
+    "name": "Zamora",
+    "coords": [
+      41.503471,
+      -5.746787
+    ]
+  },
+  {
+    "name": "Palencia",
+    "coords": [
+      42.009684,
+      -4.528794
+    ]
+  },
+  {
+    "name": "Ciudad Real",
+    "coords": [
+      38.985442,
+      -3.927208
+    ]
+  },
+  {
+    "name": "Alcázar de San Juan",
+    "coords": [
+      39.38993,
+      -3.21122
+    ]
+  },
+  {
+    "name": "Talavera de la Reina",
+    "coords": [
+      39.959179,
+      -4.834307
+    ]
+  },
+  {
+    "name": "Getafe",
+    "coords": [
+      40.30825,
+      -3.73239
+    ]
+  },
+  {
+    "name": "Pozuelo de Alarcón",
+    "coords": [
+      40.43293,
+      -3.81338
+    ]
+  },
+  {
+    "name": "Majadahonda",
+    "coords": [
+      40.47365,
+      -3.87182
+    ]
+  },
+  {
+    "name": "Las Rozas de Madrid",
+    "coords": [
+      40.49292,
+      -3.87371
+    ]
+  },
+  {
+    "name": "San Fernando",
+    "coords": [
+      36.46547,
+      -6.1968
+    ]
+  },
+  {
+    "name": "Algeciras",
+    "coords": [
+      36.14076,
+      -5.45622
+    ]
+  },
+  {
+    "name": "Marbella",
+    "coords": [
+      36.51007,
+      -4.88245
+    ]
+  },
+  {
+    "name": "Fuengirola",
+    "coords": [
+      36.539,
+      -4.62435
+    ]
+  },
+  {
+    "name": "Torremolinos",
+    "coords": [
+      36.62179,
+      -4.50027
+    ]
+  },
+  {
+    "name": "Benidorm",
+    "coords": [
+      38.54106,
+      -0.12249
+    ]
+  },
+  {
+    "name": "Torrent",
+    "coords": [
+      39.43706,
+      -0.46511
+    ]
+  },
+  {
+    "name": "Gandía",
+    "coords": [
+      38.96711,
+      -0.183
+    ]
+  },
+  {
+    "name": "Reus",
+    "coords": [
+      41.15482,
+      1.10868
+    ]
+  },
+  {
+    "name": "Manresa",
+    "coords": [
+      41.72525,
+      1.82409
+    ]
+  },
+  {
+    "name": "Mataró",
+    "coords": [
+      41.53811,
+      2.44474
+    ]
+  },
+  {
+    "name": "Torrejón de Ardoz",
+    "coords": [
+      40.45659,
+      -3.47541
+    ]
+  },
+  {
+    "name": "Parla",
+    "coords": [
+      40.23604,
+      -3.76752
+    ]
+  },
+  {
+    "name": "Alcorcón",
+    "coords": [
+      40.34909,
+      -3.82881
+    ]
+  },
+  {
+    "name": "Hendaya",
+    "coords": [
+      43.35998,
+      -1.77415
+    ]
+  },
+  {
+    "name": "Irún",
+    "coords": [
+      43.33904,
+      -1.78938
+    ]
+  },
+  {
+    "name": "Lisboa",
+    "coords": [
+      38.722252,
+      -9.139337
+    ]
+  },
+  {
+    "name": "Oporto",
+    "coords": [
+      41.157944,
+      -8.629105
+    ]
+  },
+  {
+    "name": "Faro",
+    "coords": [
+      37.019356,
+      -7.93044
+    ]
+  },
+  {
+    "name": "París",
+    "coords": [
+      48.856613,
+      2.352222
+    ]
+  },
+  {
+    "name": "Marsella",
+    "coords": [
+      43.296482,
+      5.36978
+    ]
+  },
+  {
+    "name": "Lyon",
+    "coords": [
+      45.764043,
+      4.835659
+    ]
+  },
+  {
+    "name": "Toulouse",
+    "coords": [
+      43.604652,
+      1.444209
+    ]
+  },
+  {
+    "name": "Niza",
+    "coords": [
+      43.710173,
+      7.261953
+    ]
+  },
+  {
+    "name": "Londres",
+    "coords": [
+      51.507351,
+      -0.127758
+    ]
+  },
+  {
+    "name": "Manchester",
+    "coords": [
+      53.480759,
+      -2.242631
+    ]
+  },
+  {
+    "name": "Birmingham",
+    "coords": [
+      52.486243,
+      -1.890401
+    ]
+  },
+  {
+    "name": "Edimburgo",
+    "coords": [
+      55.953252,
+      -3.188267
+    ]
+  },
+  {
+    "name": "Glasgow",
+    "coords": [
+      55.864237,
+      -4.251806
+    ]
+  },
+  {
+    "name": "Belfast",
+    "coords": [
+      54.597285,
+      -5.93012
+    ]
+  },
+  {
+    "name": "Dublín",
+    "coords": [
+      53.349805,
+      -6.26031
+    ]
+  },
+  {
+    "name": "Cork",
+    "coords": [
+      51.898514,
+      -8.475604
+    ]
+  },
+  {
+    "name": "Ámsterdam",
+    "coords": [
+      52.367573,
+      4.904139
+    ]
+  },
+  {
+    "name": "Rotterdam",
+    "coords": [
+      51.92442,
+      4.477733
+    ]
+  },
+  {
+    "name": "La Haya",
+    "coords": [
+      52.070498,
+      4.3007
+    ]
+  },
+  {
+    "name": "Utrecht",
+    "coords": [
+      52.090737,
+      5.12142
+    ]
+  },
+  {
+    "name": "Bruselas",
+    "coords": [
+      50.850346,
+      4.351721
+    ]
+  },
+  {
+    "name": "Amberes",
+    "coords": [
+      51.219447,
+      4.402464
+    ]
+  },
+  {
+    "name": "Gante",
+    "coords": [
+      51.054342,
+      3.717424
+    ]
+  },
+  {
+    "name": "Luxemburgo",
+    "coords": [
+      49.611621,
+      6.131935
+    ]
+  },
+  {
+    "name": "Berlín",
+    "coords": [
+      52.520007,
+      13.404954
+    ]
+  },
+  {
+    "name": "Múnich",
+    "coords": [
+      48.135125,
+      11.581981
+    ]
+  },
+  {
+    "name": "Frankfurt",
+    "coords": [
+      50.110922,
+      8.682127
+    ]
+  },
+  {
+    "name": "Hamburgo",
+    "coords": [
+      53.551086,
+      9.993682
+    ]
+  },
+  {
+    "name": "Colonia",
+    "coords": [
+      50.937531,
+      6.960279
+    ]
+  },
+  {
+    "name": "Düsseldorf",
+    "coords": [
+      51.227741,
+      6.773456
+    ]
+  },
+  {
+    "name": "Stuttgart",
+    "coords": [
+      48.775846,
+      9.182932
+    ]
+  },
+  {
+    "name": "Leipzig",
+    "coords": [
+      51.339695,
+      12.373075
+    ]
+  },
+  {
+    "name": "Dresde",
+    "coords": [
+      51.050409,
+      13.737262
+    ]
+  },
+  {
+    "name": "Zúrich",
+    "coords": [
+      47.376887,
+      8.541694
+    ]
+  },
+  {
+    "name": "Ginebra",
+    "coords": [
+      46.204391,
+      6.143158
+    ]
+  },
+  {
+    "name": "Basilea",
+    "coords": [
+      47.559598,
+      7.588576
+    ]
+  },
+  {
+    "name": "Viena",
+    "coords": [
+      48.208174,
+      16.373819
+    ]
+  },
+  {
+    "name": "Salzburgo",
+    "coords": [
+      47.80949,
+      13.05501
+    ]
+  },
+  {
+    "name": "Praga",
+    "coords": [
+      50.075538,
+      14.4378
+    ]
+  },
+  {
+    "name": "Brno",
+    "coords": [
+      49.195061,
+      16.606836
+    ]
+  },
+  {
+    "name": "Varsovia",
+    "coords": [
+      52.229676,
+      21.012229
+    ]
+  },
+  {
+    "name": "Cracovia",
+    "coords": [
+      50.06465,
+      19.94498
+    ]
+  },
+  {
+    "name": "Gdansk",
+    "coords": [
+      54.352025,
+      18.646638
+    ]
+  },
+  {
+    "name": "Wroclaw",
+    "coords": [
+      51.107885,
+      17.038538
+    ]
+  },
+  {
+    "name": "Budapest",
+    "coords": [
+      47.497913,
+      19.040236
+    ]
+  },
+  {
+    "name": "Milán",
+    "coords": [
+      45.464203,
+      9.189982
+    ]
+  },
+  {
+    "name": "Roma",
+    "coords": [
+      41.902784,
+      12.496366
+    ]
+  },
+  {
+    "name": "Turín",
+    "coords": [
+      45.070312,
+      7.686856
+    ]
+  },
+  {
+    "name": "Bolonia",
+    "coords": [
+      44.494887,
+      11.342616
+    ]
+  },
+  {
+    "name": "Nápoles",
+    "coords": [
+      40.851775,
+      14.268124
+    ]
+  },
+  {
+    "name": "Venecia",
+    "coords": [
+      45.440847,
+      12.315515
+    ]
+  },
+  {
+    "name": "Florencia",
+    "coords": [
+      43.76956,
+      11.255814
+    ]
+  },
+  {
+    "name": "Atenas",
+    "coords": [
+      37.98381,
+      23.727539
+    ]
+  },
+  {
+    "name": "Tesalónica",
+    "coords": [
+      40.640064,
+      22.944419
+    ]
+  },
+  {
+    "name": "Estocolmo",
+    "coords": [
+      59.329323,
+      18.068581
+    ]
+  },
+  {
+    "name": "Gotemburgo",
+    "coords": [
+      57.70887,
+      11.97456
+    ]
+  },
+  {
+    "name": "Malmö",
+    "coords": [
+      55.604981,
+      13.003822
+    ]
+  },
+  {
+    "name": "Oslo",
+    "coords": [
+      59.913869,
+      10.752245
+    ]
+  },
+  {
+    "name": "Bergen",
+    "coords": [
+      60.391263,
+      5.322054
+    ]
+  },
+  {
+    "name": "Copenhague",
+    "coords": [
+      55.676097,
+      12.568337
+    ]
+  },
+  {
+    "name": "Aarhus",
+    "coords": [
+      56.162939,
+      10.203921
+    ]
+  },
+  {
+    "name": "Helsinki",
+    "coords": [
+      60.169857,
+      24.938379
+    ]
+  },
+  {
+    "name": "Tampere",
+    "coords": [
+      61.497753,
+      23.760954
+    ]
+  },
+  {
+    "name": "Reikiavik",
+    "coords": [
+      64.146582,
+      -21.942636
+    ]
+  },
+  {
+    "name": "Moscú",
+    "coords": [
+      55.755826,
+      37.6173
+    ]
+  },
+  {
+    "name": "San Petersburgo",
+    "coords": [
+      59.931059,
+      30.360909
+    ]
+  },
+  {
+    "name": "Estambul",
+    "coords": [
+      41.008238,
+      28.978359
+    ]
+  },
+  {
+    "name": "Ankara",
+    "coords": [
+      39.933365,
+      32.859742
+    ]
+  },
+  {
+    "name": "Esmirna",
+    "coords": [
+      38.423734,
+      27.142826
+    ]
+  },
+  {
+    "name": "Bucarest",
+    "coords": [
+      44.426768,
+      26.102538
+    ]
+  },
+  {
+    "name": "Sofía",
+    "coords": [
+      42.697708,
+      23.321868
+    ]
+  },
+  {
+    "name": "Belgrado",
+    "coords": [
+      44.786568,
+      20.448922
+    ]
+  },
+  {
+    "name": "Zagreb",
+    "coords": [
+      45.815011,
+      15.981919
+    ]
+  },
+  {
+    "name": "Liubliana",
+    "coords": [
+      46.056947,
+      14.505751
+    ]
+  },
+  {
+    "name": "Sarajevo",
+    "coords": [
+      43.856259,
+      18.413076
+    ]
+  },
+  {
+    "name": "Skopie",
+    "coords": [
+      41.997346,
+      21.427996
+    ]
+  },
+  {
+    "name": "Tirana",
+    "coords": [
+      41.327546,
+      19.818698
+    ]
+  },
+  {
+    "name": "Podgorica",
+    "coords": [
+      42.43042,
+      19.259364
+    ]
+  },
+  {
+    "name": "Kiev",
+    "coords": [
+      50.4501,
+      30.5234
+    ]
+  },
+  {
+    "name": "Tel Aviv",
+    "coords": [
+      32.0853,
+      34.7818
+    ]
+  },
+  {
+    "name": "Jerusalén",
+    "coords": [
+      31.7683,
+      35.2137
+    ]
+  },
+  {
+    "name": "Dubái",
+    "coords": [
+      25.204849,
+      55.270783
+    ]
+  },
+  {
+    "name": "Abu Dabi",
+    "coords": [
+      24.453884,
+      54.377343
+    ]
+  },
+  {
+    "name": "Sharjah",
+    "coords": [
+      25.346255,
+      55.420932
+    ]
+  },
+  {
+    "name": "Doha",
+    "coords": [
+      25.285447,
+      51.53104
+    ]
+  },
+  {
+    "name": "Riad",
+    "coords": [
+      24.713552,
+      46.675296
+    ]
+  },
+  {
+    "name": "Yeda",
+    "coords": [
+      21.485811,
+      39.192505
+    ]
+  },
+  {
+    "name": "Manama",
+    "coords": [
+      26.223504,
+      50.587593
+    ]
+  },
+  {
+    "name": "Mascate",
+    "coords": [
+      23.58589,
+      58.405922
+    ]
+  },
+  {
+    "name": "Kuwait City",
+    "coords": [
+      29.375859,
+      47.977405
+    ]
+  },
+  {
+    "name": "El Cairo",
+    "coords": [
+      30.04442,
+      31.235712
+    ]
+  },
+  {
+    "name": "Alejandría",
+    "coords": [
+      31.200092,
+      29.918739
+    ]
+  },
+  {
+    "name": "Casablanca",
+    "coords": [
+      33.57311,
+      -7.589843
+    ]
+  },
+  {
+    "name": "Rabat",
+    "coords": [
+      34.020882,
+      -6.84165
+    ]
+  },
+  {
+    "name": "Tánger",
+    "coords": [
+      35.759465,
+      -5.833954
+    ]
+  },
+  {
+    "name": "Argel",
+    "coords": [
+      36.753769,
+      3.058756
+    ]
+  },
+  {
+    "name": "Túnez",
+    "coords": [
+      36.806495,
+      10.181532
+    ]
+  },
+  {
+    "name": "Trípoli",
+    "coords": [
+      32.887209,
+      13.191338
+    ]
+  },
+  {
+    "name": "Lagos",
+    "coords": [
+      6.524379,
+      3.379206
+    ]
+  },
+  {
+    "name": "Abuja",
+    "coords": [
+      9.076479,
+      7.398574
+    ]
+  },
+  {
+    "name": "Accra",
+    "coords": [
+      5.603717,
+      -0.186964
+    ]
+  },
+  {
+    "name": "Dakar",
+    "coords": [
+      14.716677,
+      -17.467686
+    ]
+  },
+  {
+    "name": "Abiyán",
+    "coords": [
+      5.36,
+      -4.008256
+    ]
+  },
+  {
+    "name": "Nairobi",
+    "coords": [
+      -1.292066,
+      36.821946
+    ]
+  },
+  {
+    "name": "Addis Abeba",
+    "coords": [
+      8.980603,
+      38.757761
+    ]
+  },
+  {
+    "name": "Kampala",
+    "coords": [
+      0.347596,
+      32.58252
+    ]
+  },
+  {
+    "name": "Dar es Salaam",
+    "coords": [
+      -6.792354,
+      39.208328
+    ]
+  },
+  {
+    "name": "Johannesburgo",
+    "coords": [
+      -26.204103,
+      28.047305
+    ]
+  },
+  {
+    "name": "Pretoria",
+    "coords": [
+      -25.747868,
+      28.229271
+    ]
+  },
+  {
+    "name": "Ciudad del Cabo",
+    "coords": [
+      -33.924869,
+      18.424055
+    ]
+  },
+  {
+    "name": "Durban",
+    "coords": [
+      -29.85868,
+      31.02184
+    ]
+  },
+  {
+    "name": "Nueva York",
+    "coords": [
+      40.712776,
+      -74.005974
+    ]
+  },
+  {
+    "name": "Washington D. C.",
+    "coords": [
+      38.907192,
+      -77.036871
+    ]
+  },
+  {
+    "name": "Boston",
+    "coords": [
+      42.360082,
+      -71.05888
+    ]
+  },
+  {
+    "name": "Philadelphia",
+    "coords": [
+      39.952584,
+      -75.165222
+    ]
+  },
+  {
+    "name": "Atlanta",
+    "coords": [
+      33.749,
+      -84.388
+    ]
+  },
+  {
+    "name": "Miami",
+    "coords": [
+      25.76168,
+      -80.19179
+    ]
+  },
+  {
+    "name": "Orlando",
+    "coords": [
+      28.538336,
+      -81.379234
+    ]
+  },
+  {
+    "name": "Chicago",
+    "coords": [
+      41.878113,
+      -87.629799
+    ]
+  },
+  {
+    "name": "Detroit",
+    "coords": [
+      42.331427,
+      -83.045754
+    ]
+  },
+  {
+    "name": "Dallas",
+    "coords": [
+      32.776664,
+      -96.796988
+    ]
+  },
+  {
+    "name": "Houston",
+    "coords": [
+      29.760427,
+      -95.369803
+    ]
+  },
+  {
+    "name": "Austin",
+    "coords": [
+      30.267153,
+      -97.743057
+    ]
+  },
+  {
+    "name": "Denver",
+    "coords": [
+      39.739236,
+      -104.990251
+    ]
+  },
+  {
+    "name": "Phoenix",
+    "coords": [
+      33.448376,
+      -112.074036
+    ]
+  },
+  {
+    "name": "San Diego",
+    "coords": [
+      32.715736,
+      -117.161087
+    ]
+  },
+  {
+    "name": "Los Ángeles",
+    "coords": [
+      34.052234,
+      -118.243685
+    ]
+  },
+  {
+    "name": "San Francisco",
+    "coords": [
+      37.774929,
+      -122.419418
+    ]
+  },
+  {
+    "name": "San José (CA)",
+    "coords": [
+      37.338208,
+      -121.886329
+    ]
+  },
+  {
+    "name": "Seattle",
+    "coords": [
+      47.606209,
+      -122.332071
+    ]
+  },
+  {
+    "name": "Portland (OR)",
+    "coords": [
+      45.51523,
+      -122.6784
+    ]
+  },
+  {
+    "name": "Las Vegas",
+    "coords": [
+      36.169941,
+      -115.13983
+    ]
+  },
+  {
+    "name": "Milwaukee",
+    "coords": [
+      43.038902,
+      -87.906474
+    ]
+  },
+  {
+    "name": "Toronto",
+    "coords": [
+      43.653226,
+      -79.383184
+    ]
+  },
+  {
+    "name": "Montreal",
+    "coords": [
+      45.501689,
+      -73.567256
+    ]
+  },
+  {
+    "name": "Vancouver",
+    "coords": [
+      49.282729,
+      -123.120738
+    ]
+  },
+  {
+    "name": "Calgary",
+    "coords": [
+      51.044733,
+      -114.071883
+    ]
+  },
+  {
+    "name": "Ottawa",
+    "coords": [
+      45.42153,
+      -75.697193
+    ]
+  },
+  {
+    "name": "Ciudad de México",
+    "coords": [
+      19.432608,
+      -99.133209
+    ]
+  },
+  {
+    "name": "Guadalajara (MX)",
+    "coords": [
+      20.659699,
+      -103.349609
+    ]
+  },
+  {
+    "name": "Monterrey",
+    "coords": [
+      25.686614,
+      -100.316113
+    ]
+  },
+  {
+    "name": "Cancún",
+    "coords": [
+      21.161908,
+      -86.851528
+    ]
+  },
+  {
+    "name": "Bogotá",
+    "coords": [
+      4.711,
+      -74.072093
+    ]
+  },
+  {
+    "name": "Medellín",
+    "coords": [
+      6.244203,
+      -75.581212
+    ]
+  },
+  {
+    "name": "Cali",
+    "coords": [
+      3.451647,
+      -76.531982
+    ]
+  },
+  {
+    "name": "Lima",
+    "coords": [
+      -12.046374,
+      -77.042793
+    ]
+  },
+  {
+    "name": "Quito",
+    "coords": [
+      -0.180653,
+      -78.467834
+    ]
+  },
+  {
+    "name": "Santiago de Chile",
+    "coords": [
+      -33.44889,
+      -70.669265
+    ]
+  },
+  {
+    "name": "Valparaíso",
+    "coords": [
+      -33.047238,
+      -71.612688
+    ]
+  },
+  {
+    "name": "Buenos Aires",
+    "coords": [
+      -34.603684,
+      -58.381559
+    ]
+  },
+  {
+    "name": "Córdoba (AR)",
+    "coords": [
+      -31.420083,
+      -64.188776
+    ]
+  },
+  {
+    "name": "Montevideo",
+    "coords": [
+      -34.901113,
+      -56.164531
+    ]
+  },
+  {
+    "name": "São Paulo",
+    "coords": [
+      -23.55052,
+      -46.633308
+    ]
+  },
+  {
+    "name": "Río de Janeiro",
+    "coords": [
+      -22.906847,
+      -43.172897
+    ]
+  },
+  {
+    "name": "Belo Horizonte",
+    "coords": [
+      -19.916681,
+      -43.934493
+    ]
+  },
+  {
+    "name": "Brasilia",
+    "coords": [
+      -15.793889,
+      -47.882778
+    ]
+  },
+  {
+    "name": "Nueva Delhi",
+    "coords": [
+      28.613939,
+      77.209021
+    ]
+  },
+  {
+    "name": "Mumbai",
+    "coords": [
+      19.075984,
+      72.877656
+    ]
+  },
+  {
+    "name": "Bangalore",
+    "coords": [
+      12.971599,
+      77.594566
+    ]
+  },
+  {
+    "name": "Chennai",
+    "coords": [
+      13.08268,
+      80.270718
+    ]
+  },
+  {
+    "name": "Hyderabad",
+    "coords": [
+      17.385044,
+      78.486671
+    ]
+  },
+  {
+    "name": "Singapur",
+    "coords": [
+      1.352083,
+      103.819836
+    ]
+  },
+  {
+    "name": "Kuala Lumpur",
+    "coords": [
+      3.139003,
+      101.686855
+    ]
+  },
+  {
+    "name": "Bangkok",
+    "coords": [
+      13.756331,
+      100.501765
+    ]
+  },
+  {
+    "name": "Hanói",
+    "coords": [
+      21.027764,
+      105.83416
+    ]
+  },
+  {
+    "name": "Ho Chi Minh City",
+    "coords": [
+      10.823099,
+      106.629664
+    ]
+  },
+  {
+    "name": "Yakarta",
+    "coords": [
+      -6.208763,
+      106.845599
+    ]
+  },
+  {
+    "name": "Manila",
+    "coords": [
+      14.599512,
+      120.98422
+    ]
+  },
+  {
+    "name": "Hong Kong",
+    "coords": [
+      22.319303,
+      114.169361
+    ]
+  },
+  {
+    "name": "Shanghái",
+    "coords": [
+      31.230391,
+      121.473701
+    ]
+  },
+  {
+    "name": "Pekín",
+    "coords": [
+      39.904202,
+      116.407394
+    ]
+  },
+  {
+    "name": "Shenzhen",
+    "coords": [
+      22.543097,
+      114.057865
+    ]
+  },
+  {
+    "name": "Guangzhou",
+    "coords": [
+      23.12911,
+      113.264385
+    ]
+  },
+  {
+    "name": "Taipéi",
+    "coords": [
+      25.032969,
+      121.565418
+    ]
+  },
+  {
+    "name": "Seúl",
+    "coords": [
+      37.566535,
+      126.977969
+    ]
+  },
+  {
+    "name": "Busan",
+    "coords": [
+      35.179554,
+      129.075642
+    ]
+  },
+  {
+    "name": "Tokio",
+    "coords": [
+      35.689487,
+      139.691711
+    ]
+  },
+  {
+    "name": "Osaka",
+    "coords": [
+      34.693738,
+      135.502165
+    ]
+  },
+  {
+    "name": "Nagoya",
+    "coords": [
+      35.181446,
+      136.906398
+    ]
+  },
+  {
+    "name": "Sídney",
+    "coords": [
+      -33.86882,
+      151.209296
+    ]
+  },
+  {
+    "name": "Melbourne",
+    "coords": [
+      -37.813629,
+      144.963058
+    ]
+  },
+  {
+    "name": "Brisbane",
+    "coords": [
+      -27.46977,
+      153.025124
+    ]
+  },
+  {
+    "name": "Perth",
+    "coords": [
+      -31.950527,
+      115.860457
+    ]
+  },
+  {
+    "name": "Auckland",
+    "coords": [
+      -36.84846,
+      174.763332
+    ]
+  },
+  {
+    "name": "Ciudad de Panamá",
+    "coords": [
+      8.982379,
+      -79.51987
+    ]
+  },
+  {
+    "name": "San José (CR)",
+    "coords": [
+      9.928069,
+      -84.090725
+    ]
+  },
+  {
+    "name": "San Salvador",
+    "coords": [
+      13.69294,
+      -89.218191
+    ]
+  },
+  {
+    "name": "Guatemala City",
+    "coords": [
+      14.634915,
+      -90.506882
+    ]
+  },
+  {
+    "name": "Noruega",
+    "coords": [
+      59.88893689676585,
+      10.843505859375002
+    ]
+  },
+  {
+    "name": "Mongolia",
+    "coords": [
+      25.2296341,
+      55.289585
+    ]
+  },
+  {
+    "name": "Ordizia",
+    "coords": [
+      43.0539687,
+      -2.1795046
+    ]
+  },
+  {
+    "name": "Ingeteam Milwaukee",
+    "coords": [
+      43.0264339,
+      -87.9595321
+    ]
+  },
+  {
+    "name": "Sesma",
+    "coords": [
+      42.4713799,
+      -2.0931582
+    ]
+  }
+]

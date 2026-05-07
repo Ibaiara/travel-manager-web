@@ -1,0 +1,25 @@
+{
+  "name": "travel-manager-web",
+  "version": "1.0.0",
+  "description": "Demo web para gestión de viajes (adaptación de app Electron)",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "keywords": [
+    "electron",
+    "web",
+    "express",
+    "portfolio"
+  ],
+  "author": "Ibai Arana",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1",
+    "xlsx": "^0.18.5"
+  }
+}

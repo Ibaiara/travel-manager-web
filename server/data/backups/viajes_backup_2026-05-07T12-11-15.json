@@ -1,0 +1,28 @@
+{
+  "viajes": [
+    {
+      "id": 1,
+      "userId": "Ibai",
+      "creadoPor": "Ibai",
+      "traveler": "Ibai",
+      "destination": "Zamudio",
+      "startDate": "2026-05-08",
+      "endDate": "2026-05-16",
+      "client": "Abengoa Water",
+      "project": "Ibai",
+      "coords": [
+        43.289986,
+        -2.858111
+      ],
+      "color": "#c10230",
+      "estado": "Aprobado",
+      "fechaCreacion": "2026-05-07T12:09:55.744Z"
+    }
+  ],
+  "config": {
+    "ultimoID": 1,
+    "version": "demo-web",
+    "createdAt": "2026-05-07T10:24:33.498Z",
+    "ultimaActualizacion": "2026-05-07T12:09:55.754Z"
+  }
+}

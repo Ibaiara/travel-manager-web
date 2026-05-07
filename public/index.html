@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingeteam - Gestión de Viajes Corporativos</title>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+    .animate-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .leaflet-container { height: 100%; width: 100%; z-index: 0;  }
+    .calendar-day-content { height: 80px; overflow-y: auto; }
+    .leaflet-pane { z-index: 1; }
+    .leaflet-top, .leaflet-bottom { z-index: 2; }
+    .calendar-day-content::-webkit-scrollbar { width: 4px; }
+    .calendar-day-content::-webkit-scrollbar-thumb { background: #c10230; border-radius: 2px; }
+  </style>
+</head>
+
+<body>
+<div id="root"></div>
+
+
+<script type="text/babel">
+  const { useState, useEffect, useRef } = React;
+  const API_URL = 'http://localhost:3001/api';
+  const DEMO_WEB = true;
+  const Icons = {
+    Calendar: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
+    User: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
+    Building: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
+    MapPin: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+    Briefcase: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
+    Plus: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>,
+    X: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>,
+    Refresh: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
+    Download: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>,
+    Filter: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>,
+    Map: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>,
+    List: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>,
+    Globe: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+    Users: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
+    ChevronLeft: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>,
+    ChevronRight: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>,
+    Edit: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+    Trash: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
+    ChevronsLeft: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>,
+    ChevronsRight: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>,
+    Chart: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-6m4 6V7m4 10v-3M3 21h18" /></svg>
+
+  };
+
+  const i18n = {
+    es: {
+        destinationHelp: "Selecciona una ubicación existente o crea una nueva para guardar coordenadas.",
+        clientHelp: "Empieza a escribir para buscar en el catálogo.",
+        calendarPrevMonth: "Mes anterior",
+        calendarNextMonth: "Mes siguiente",
+        weekdaysShort: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+        mapTitle: "Mapa Mundial - Ubicación del Equipo",
+        mapAutoUpdate: "Actualización automática cada 30s",
+        updateNow: "Actualizar ahora",
+        title: "Gestión de Viajes",
+        view: "Vista",
+        calendar: "Calendario",
+        map: "Mapa",
+        list: "Lista",
+        newTrip: "Nuevo Viaje",
+        editTrip: "Editar Viaje",
+        addTrip: "Registrar Nuevo Viaje",
+        traveler: "Viajero",
+        destination: "Destino",
+        startDate: "Fecha inicio",
+        endDate: "Fecha fin",
+        client: "Cliente",
+        project: "Proyecto / Oferta / Oportunidad",
+        cancel: "Cancelar",
+        save: "Registrar Viaje",
+        update: "Actualizar Viaje",
+        saving: "Guardando...",
+        exportCSV: "Exportar CSV",
+        openPowerBI: "Abrir Power BI",
+        activeTravelers: "Viajeros Activos",
+        today: "Hoy",
+        week: "Semana",
+        month: "Mes",
+        range: "Rango",
+        all: "Todos",
+        from: "Desde",
+        to: "Hasta",
+        noActive: "No hay viajeros activos",
+        history: "Histórico de Viajes",
+        noResults: "Sin resultados",
+        noTripsWithFilters: "No hay viajes con estos filtros",
+        clearFilters: "Limpiar filtros",
+        perPage: "Por página",
+        connectionErrorTitle: "Error de Conexión",
+        retry: "Reintentar",
+        createLocation: "Crear ubicación",
+        clickMapToSet: "Pincha en el mapa para fijar coordenadas",
+        name: "Nombre",
+        saveLocation: "Guardar ubicación",
+        details: "Detalle del Viaje",
+        close: "Cerrar"
+    },
+    en: {
+        destinationHelp: "Select an existing location or create a new one to save coordinates.",
+        clientHelp: "Start typing to search in the catalog.",
+        calendarPrevMonth: "Previous month",
+        calendarNextMonth: "Next month",
+        weekdaysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        mapTitle: "World Map - Team Location",
+        mapAutoUpdate: "Auto refresh every 30s",
+        updateNow: "Refresh now",
+        title: "Travel Management",
+        view: "View",
+        calendar: "Calendar",
+        map: "Map",
+        list: "List",
+        newTrip: "New Trip",
+        editTrip: "Edit Trip",
+        addTrip: "Create Trip",
+        traveler: "Traveler",
+        destination: "Destination",
+        startDate: "Start date",
+        endDate: "End date",
+        client: "Client",
+        project: "Project / Offer / Opportunity",
+        cancel: "Cancel",
+        save: "Create Trip",
+        update: "Update Trip",
+        saving: "Saving...",
+        exportCSV: "Export CSV",
+        openPowerBI: "Open Power BI",
+        activeTravelers: "Active Travelers",
+        today: "Today",
+        week: "Week",
+        month: "Month",
+        range: "Range",
+        all: "All",
+        from: "From",
+        to: "To",
+        noActive: "No active travelers",
+        history: "Trip History",
+        noResults: "No results",
+        noTripsWithFilters: "No trips match these filters",
+        clearFilters: "Clear filters",
+        perPage: "Per page",
+        connectionErrorTitle: "Connection error",
+        retry: "Retry",
+        createLocation: "Create location",
+        clickMapToSet: "Click on the map to set coordinates",
+        name: "Name",
+        saveLocation: "Save location",
+        details: "Trip details",
+        close: "Close"
+    }
+  };
+
+  function CatalogImportBlock({ title, endpoint, extraFields, onDone }) {
+          const [file, setFile] = React.useState(null);
+          const [columnName, setColumnName] = React.useState('');
+          const [loading, setLoading] = React.useState(false);
+          const [msg, setMsg] = React.useState('');
+
+          const submit = async () => {
+            if (!file) return alert('Selecciona un Excel');
+            if (!columnName.trim()) return alert('Indica el nombre de la columna (header)');
+
+            setLoading(true);
+            setMsg('');
+            try {
+              const fd = new FormData();
+              fd.append('file', file);
+              fd.append('columnName', columnName.trim());
+              if (extraFields) {
+                Object.entries(extraFields).forEach(([k, v]) => fd.append(k, v));
+              }
+
+              const resp = await fetch(endpoint, { method: 'POST', body: fd });
+              const data = await resp.json().catch(() => ({}));
+
+              if (!resp.ok) {
+                alert(data.error || 'Error importando');
+                return;
+              }
+
+              setMsg(`OK: ${data.count ?? data.total} registros`);
+              setFile(null);
+              await onDone?.();
+            } finally {
+              setLoading(false);
+            }
+          };
+
+          return (
+            <div className="border rounded-lg p-3">
+              <div className="font-semibold mb-2">{title}</div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  className="text-sm"
+                />
+                <input
+                  type="text"
+                  placeholder="Nombre de la columna (header)"
+                  value={columnName}
+                  onChange={(e) => setColumnName(e.target.value)}
+                  className="px-3 py-2 border rounded-lg text-sm"
+                />
+              </div>
+
+              <div className="mt-2 flex items-center justify-between">
+                <button
+                  onClick={submit}
+                  disabled={loading}
+                  className="px-4 py-2 rounded-lg text-white font-semibold disabled:opacity-40"
+                  style={{backgroundColor:'#c10230'}}
+                >
+                  {loading ? 'Importando...' : 'Importar'}
+                </button>
+                <div className="text-sm text-gray-600">{msg}</div>
+              </div>
+
+              <div className="text-xs text-gray-500 mt-2">
+                El nombre de columna debe coincidir con el header del Excel.
+              </div>
+            </div>
+          );
+    }
+
+    function SimpleExcelImport({ title, endpoint, onDone }) {
+      const [file, setFile] = React.useState(null);
+      const [loading, setLoading] = React.useState(false);
+      const [msg, setMsg] = React.useState('');
+
+      const submit = async () => {
+        if (!file) return alert('Selecciona un Excel');
+        setLoading(true);
+        setMsg('');
+        try {
+          const fd = new FormData();
+          fd.append('file', file);
+
+          const resp = await fetch(endpoint, { method: 'POST', body: fd });
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            alert(data.error || 'Error importando');
+            return;
+          }
+          setMsg(`OK: ${data.count ?? data.total} registros`);
+          setFile(null);
+          await onDone?.();
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="border rounded-lg p-3">
+          <div className="font-semibold mb-2">{title}</div>
+          <div className="flex flex-wrap gap-3 items-center justify-between">
+            <div className="flex gap-2 flex-wrap">
+              <input type="file" accept=".xlsx,.xls" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={submit}
+                disabled={loading}
+                className="px-4 py-2 rounded-lg text-white font-semibold disabled:opacity-40"
+                style={{ backgroundColor: '#c10230' }}
+              >
+                {loading ? 'Importando...' : 'Importar'}
+              </button>
+            </div>
+          </div>
+          <div className="text-xs text-gray-600 mt-2">{msg}</div>
+        </div>
+      );
+    }
+  function App() {
+    const [travels, setTravels] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [activeView, setActiveView] = useState('calendar');
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [editingTravel, setEditingTravel] = useState(null);
+    const [selectedTravel, setSelectedTravel] = useState(null);
+    const [saving, setSaving] = useState(false);
+
+    const [lang, setLang] = useState(localStorage.getItem('lang') || 'es');
+    useEffect(() => localStorage.setItem('lang', lang), [lang]);
+    const t = (key) => (i18n[lang] && i18n[lang][key]) ? i18n[lang][key] : key;
+
+    const [filterUser, setFilterUser] = useState('all');
+    const [filterClient, setFilterClient] = useState('all');
+    const [filterDateMode, setFilterDateMode] = useState('all');
+    const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
+    const [filterMonth, setFilterMonth] = useState((new Date().getMonth() + 1).toString());
+    const [filterDateFrom, setFilterDateFrom] = useState('');
+    const [filterDateTo, setFilterDateTo] = useState('');
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+
+    const [mapTimeFilter, setMapTimeFilter] = useState('today');
+    const [mapDateFrom, setMapDateFrom] = useState('');
+    const [mapDateTo, setMapDateTo] = useState('');
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    const mapRef = useRef(null);
+    const mapInstanceRef = useRef(null);
+    const markerClusterRef = useRef(null);
+
+    const [clientesCatalogo, setClientesCatalogo] = useState([]);
+    const [clienteQuery, setClienteQuery] = useState('');
+    const [mostrarDropdownClientes, setMostrarDropdownClientes] = useState(false);
+
+    const [locations, setLocations] = useState([]);
+    const [destinationQuery, setDestinationQuery] = useState('');
+    const [showDestDropdown, setShowDestDropdown] = useState(false);
+
+    const [showLocationModal, setShowLocationModal] = useState(false);
+    const [newLocationName, setNewLocationName] = useState('');
+    const [newLocationCoords, setNewLocationCoords] = useState(null);
+    const [geoQuery, setGeoQuery] = useState('');
+    const [geoResults, setGeoResults] = useState([]);
+    const [geoLoading, setGeoLoading] = useState(false);
+
+    const miniMapRef = useRef(null);
+    const miniMapInstanceRef = useRef(null);
+    const miniMarkerRef = useRef(null);
+
+    const [ofertasCatalogo, setOfertasCatalogo] = useState([]);
+    const [ofertaQuery, setOfertaQuery] = useState('');
+    const [mostrarDropdownOfertas, setMostrarDropdownOfertas] = useState(false);
+
+    const [showCatalogImport, setShowCatalogImport] = useState(false);
+    const [proyectosCatalogo, setProyectosCatalogo] = useState([]);
+    const [proyectoQuery, setProyectoQuery] = useState('');
+    const [mostrarDropdownProyectos, setMostrarDropdownProyectos] = useState(false);
+
+    const [users, setUsers] = useState([]);
+    const [currentUser, setCurrentUser] = useState(() => {
+      try { return JSON.parse(localStorage.getItem('currentUser')); } catch { return null; }
+    });
+    const [showUserPicker, setShowUserPicker] = useState(false);
+
+    const usersById = React.useMemo(() => {
+      const m = new Map();
+      users.forEach(u => m.set(u.id, u));
+      return m;
+    }, [users]);
+
+    const [formData, setFormData] = useState({
+      traveler: '', destination: '', startDate: '', endDate: '', client: '', project: '', coords: null
+    });
+
+    const [statsMode, setStatsMode] = useState('days'); // 'days' | 'trips'
+
+    const [statsDateMode, setStatsDateMode] = useState('year'); // 'year' | 'month' | 'range'
+    const [statsYear, setStatsYear] = useState(new Date().getFullYear().toString());
+    const [statsMonth, setStatsMonth] = useState((new Date().getMonth() + 1).toString());
+    const [statsDateFrom, setStatsDateFrom] = useState('');
+    const [statsDateTo, setStatsDateTo] = useState('');
+
+    const ingeteamHQ = [43.04426527618791, -2.2100984760320834];
+
+
+    useEffect(() => {
+      cargarUsers();
+      cargarCatalogoClientes();
+      cargarViajes();
+      cargarLocations();
+      cargarCatalogoProyectos();
+      const interval = setInterval(cargarViajes, 30000);
+      return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+      if (activeView === 'map') {
+        cargarViajes();
+        setTimeout(initMap, 100);
+      }
+    }, [activeView]);
+
+    useEffect(() => {
+      if (!currentUser) return;
+      setFormData(prev => ({ ...prev, traveler: currentUser.name }));
+    }, [currentUser]);
+
+    useEffect(() => {
+      if (mapInstanceRef.current && activeView === 'map') {
+        updateMapMarkers();
+      }
+    }, [mapTimeFilter, travels, mapDateFrom, mapDateTo]);
+
+    useEffect(() => {
+      setCurrentPage(1);
+    }, [filterUser, filterClient, filterDateMode, filterYear, filterMonth, filterDateFrom, filterDateTo]);
+
+    useEffect(() => {
+      if (!users.length) return;
+
+      const colorById = new Map(users.map(u => [u.id, u.color]));
+
+      setTravels(prev => (prev || []).map(v => ({
+        ...v,
+        color: colorById.get(v.userId) || v.color || '#636569'
+      })));
+    }, [users]);
+
+    useEffect(() => {
+      if (!showLocationModal) return;
+
+      setTimeout(() => {
+        if (!window.L || !miniMapRef.current) return;
+
+        if (miniMapInstanceRef.current) {
+          miniMapInstanceRef.current.remove();
+          miniMapInstanceRef.current = null;
+          miniMarkerRef.current = null;
+        }
+
+        const map = window.L.map(miniMapRef.current).setView(ingeteamHQ, 5);
+
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap',
+          maxZoom: 18
+        }).addTo(map);
+
+        map.on('click', (e) => {
+          const latlng = [e.latlng.lat, e.latlng.lng];
+          setNewLocationCoords(latlng);
+
+          if (miniMarkerRef.current) miniMarkerRef.current.setLatLng(latlng);
+          else miniMarkerRef.current = window.L.marker(latlng).addTo(map);
+        });
+
+        miniMapInstanceRef.current = map;
+        setTimeout(() => map.invalidateSize(), 200);
+      }, 80);
+    }, [showLocationModal]);
+
+    async function cargarViajes() {
+      try {
+        const response = await fetch(`${API_URL}/viajes`);
+        if (!response.ok) throw new Error('Error');
+        const data = await response.json();
+
+        setTravels(Array.isArray(data) ? data : []);  // <-- aquí
+
+        setLoading(false);
+        setError(null);
+      } catch (err) {
+        setError('No se pudo conectar');
+        setLoading(false);
+      }
+    }
+
+    async function buscarLugar(q) {
+      const query = (q || '').trim();
+      if (!query) return;
+
+      setGeoLoading(true);
+      setGeoResults([]);
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(query)}`;
+        const resp = await fetch(url, {
+          headers: {
+            'Accept-Language': lang === 'en' ? 'en' : 'es'
+          }
+        });
+
+        const json = await resp.json();
+        setGeoResults(Array.isArray(json) ? json : []);
+      } catch (e) {
+        console.warn('Busqueda geocoding falló:', e);
+        setGeoResults([]);
+        alert('No se pudo buscar (red/proxy). Puedes seleccionar el punto manualmente en el mapa.');
+      } finally {
+        setGeoLoading(false);
+      }
+    }
+
+    async function cargarCatalogoProyectos() {
+      try {
+        const res = await fetch(`${API_URL}/proyectos`);
+        const data = await res.json();
+        setProyectosCatalogo(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.warn('No se pudo cargar proyectos', e);
+        setProyectosCatalogo([]);
+      }
+    }
+    async function cargarCatalogoOfertas() {
+      try {
+        const res = await fetch(`${API_URL}/ofertas`);
+        const data = await res.json();
+        setOfertasCatalogo(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.warn('No se pudo cargar catálogo de ofertas', e);
+        setOfertasCatalogo([]);
+      }
+    }
+
+    async function cargarCatalogoClientes() {
+      try {
+        const res = await fetch(`${API_URL}/clientes`);
+        const data = await res.json();
+        setClientesCatalogo(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.warn('No se pudo cargar catálogo de clientes', e);
+        setClientesCatalogo([]);
+      }
+    }
+    async function cargarUsers() {
+      try {
+        const res = await fetch(`${API_URL}/users`);
+        const data = await res.json();
+        setUsers(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.warn('No se pudo cargar users', e);
+        setUsers([]);
+      }
+    }
+    async function cargarLocations() {
+      try {
+        const res = await fetch(`${API_URL}/locations`);
+        const data = await res.json();
+        setLocations(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.warn('No se pudo cargar locations', e);
+        setLocations([]);
+      }
+    }
+    function filterTravelsByStatsTime(viajes) {
+      const list = Array.isArray(viajes) ? viajes : [];
+
+      return list.filter(v => {
+        const start = new Date(v.startDate);
+        const end = new Date(v.endDate);
+
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return false;
+
+        switch (statsDateMode) {
+          case 'year': {
+            const y = parseInt(statsYear, 10);
+            const from = new Date(y, 0, 1);
+            const to = new Date(y, 11, 31);
+            return start <= to && end >= from;
+          }
+          case 'month': {
+            const y = parseInt(statsYear, 10);
+            const m = parseInt(statsMonth, 10) - 1;
+            const from = new Date(y, m, 1);
+            const to = new Date(y, m + 1, 0);
+            return start <= to && end >= from;
+          }
+          case 'range': {
+            const from = statsDateFrom ? new Date(statsDateFrom) : new Date('1900-01-01');
+            const to = statsDateTo ? new Date(statsDateTo) : new Date('2100-12-31');
+            return start <= to && end >= from;
+          }
+          default:
+            return true;
+        }
+      });
+    }
+    function normalizarTexto(s) {
+      return (s || '')
+        .toString()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    }
+
+    function norm(s) {
+      return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    }
+
+    function filtrarLocations(q) {
+      const qq = norm(q);
+      if (!qq) return locations;
+      return locations.filter(l => norm(l.name).includes(qq));
+    }
+
+    function getClientesFiltrados(lista, query) {
+      const q = normalizarTexto(query);
+      if (!q || q.length < 1) return lista;
+      return lista.filter((c) => {
+        const name = typeof c === 'string' ? c : c.name;
+        return normalizarTexto(name).includes(q);
+      });
+    }
+
+    function daysBetweenInclusive(startDate, endDate) {
+        const s = new Date(startDate);
+        const e = new Date(endDate);
+        s.setHours(0,0,0,0);
+        e.setHours(0,0,0,0);
+        const ms = e - s;
+        if (Number.isNaN(ms)) return 0;
+        return Math.max(0, Math.floor(ms / (1000*60*60*24)) + 1);
+    }
+
+    const renderStats = () => {
+        const maxValue = Math.max(
+          1,
+          ...statsByUser.map(x => statsMode === 'days' ? x.days : x.trips)
+        );
+
+        return (
+          <div className="space-y-4">
+             {/* Header + toggles + time filters */}
+            <div className="bg-white rounded-lg shadow-lg p-4 border-2" style={{borderColor:'#c10230'}}>
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <div className="font-bold text-lg" style={{color:'#c10230'}}>
+                    {statsMode === 'days' ? 'Días fuera por usuario' : 'Viajes por usuario'}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Basado en {travels.length} viajes
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setStatsMode('days')}
+                    className={`px-3 py-1 rounded font-semibold text-sm ${statsMode==='days'?'text-white':'border-2'}`}
+                    style={statsMode==='days'?{backgroundColor:'#c10230'}:{borderColor:'#636569', color:'#636569'}}
+                  >
+                    Días
+                  </button>
+                  <button
+                    onClick={() => setStatsMode('trips')}
+                    className={`px-3 py-1 rounded font-semibold text-sm ${statsMode==='trips'?'text-white':'border-2'}`}
+                    style={statsMode==='trips'?{backgroundColor:'#c10230'}:{borderColor:'#636569', color:'#636569'}}
+                  >
+                    Viajes
+                  </button>
+                </div>
+              </div>
+            
+            
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 whitespace-nowrap">Modo:</span>
+                <select
+                  value={statsDateMode}
+                  onChange={(e) => setStatsDateMode(e.target.value)}
+                  className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700"
+                >
+                  <option value="year">Año</option>
+                  <option value="month">Mes</option>
+                  <option value="range">Rango</option>
+                </select>
+              </div>
+
+              {statsDateMode !== 'range' && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 whitespace-nowrap">Año:</span>
+                  <select
+                    value={statsYear}
+                    onChange={(e) => setStatsYear(e.target.value)}
+                    className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700"
+                  >
+                    {years.map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                </div>
+              )}
+
+              {statsDateMode === 'month' && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 whitespace-nowrap">Mes:</span>
+                  <select
+                    value={statsMonth}
+                    onChange={(e) => setStatsMonth(e.target.value)}
+                    className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700"
+                  >
+                    {monthNames.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+                  </select>
+                </div>
+              )}
+
+              {statsDateMode === 'range' && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600 whitespace-nowrap">Desde:</span>
+                    <input
+                      type="date"
+                      value={statsDateFrom}
+                      onChange={(e) => setStatsDateFrom(e.target.value)}
+                      className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600 whitespace-nowrap">Hasta:</span>
+                    <input
+                      type="date"
+                      value={statsDateTo}
+                      onChange={(e) => setStatsDateTo(e.target.value)}
+                      className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              {statsByUser.length === 0 ? (
+                <div className="text-gray-500">No hay usuarios o no hay datos.</div>
+              ) : (
+                <div className="space-y-3">
+                  {statsByUser.map(({ user, trips, days }) => {
+                    const value = statsMode === 'days' ? days : trips;
+                    const pct = Math.round((value / maxValue) * 100);
+
+                    return (
+                      <div key={user.id} className="flex items-center gap-3">
+                        <div className="w-48 flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full" style={{backgroundColor: user.color}}></span>
+                          <span className="font-semibold text-sm truncate" title={user.name}>{user.name}</span>
+                        </div>
+
+                        <div className="flex-1">
+                          <div className="h-4 rounded bg-gray-100 overflow-hidden">
+                            <div
+                              className="h-4"
+                              style={{width: `${pct}%`, backgroundColor: user.color}}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="w-20 text-right font-bold text-sm" style={{color: user.color}}>
+                          {value}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      };
+
+      const statsByUser = React.useMemo(() => {
+        const map = new Map(); // userId -> { user, trips, days }
+        users.forEach(u => map.set(u.id, { user: u, trips: 0, days: 0 }));
+
+        const statsTravels = filterTravelsByStatsTime(travels);
+        statsTravels.forEach(v => {
+          const uid = v.userId;
+          if (!uid) return;
+          const entry = map.get(uid);
+          if (!entry) return;
+
+          entry.trips += 1;
+          entry.days += daysBetweenInclusive(v.startDate, v.endDate);
+        });
+
+        return Array.from(map.values())
+          .sort((a,b) => (b.days - a.days) || (b.trips - a.trips) || a.user.name.localeCompare(b.user.name));
+      }, [
+        users,
+        travels,
+        statsDateMode,
+        statsYear,
+        statsMonth,
+        statsDateFrom,
+        statsDateTo
+      ]);
+
+    const handleSubmit = async (e) => {
+          e.preventDefault();
+          setSaving(true);
+
+          // Construir payload con usuario seleccionado
+          const payload = {
+            ...formData,
+            creadoPor: currentUser?.name || 'unknown',
+            userId: currentUser?.id || null,
+            traveler: currentUser.name,
+            // Si quieres que el color del viaje sea el color del usuario:
+            color: currentUser?.color || formData.color || '#636569'
+          };
+
+          try {
+            const response = await fetch(`${API_URL}/viajes`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)   // <-- aquí usas payload
+            });
+
+            if (!response.ok) throw new Error('Error');
+
+            await cargarViajes();
+
+            // Reset
+            setFormData({
+              traveler: '',
+              destination: '',
+              startDate: '',
+              endDate: '',
+              client: '',
+              project: '',
+              coords: null
+            });
+            setClienteQuery('');
+            setProyectoQuery('');
+            setDestinationQuery('');
+            setShowAddForm(false);
+          } catch (err) {
+            alert('❌ Error al guardar');
+          } finally {
+            setSaving(false);
+          }
+        };
+
+    const handleEdit = async (e) => {
+            e.preventDefault();
+            setSaving(true);
+
+            const { traveler, userId, color, creadoPor, ...rest } = formData;
+
+            const payload = {
+              ...rest,
+              modificadoPor: currentUser?.name || 'unknown'
+            };
+
+            try {
+              const response = await fetch(`${API_URL}/viajes/${editingTravel.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+
+              if (!response.ok) throw new Error('Error');
+
+              await cargarViajes();
+              setEditingTravel(null);
+
+              setFormData({
+                traveler: '',
+                destination: '',
+                startDate: '',
+                endDate: '',
+                client: '',
+                project: '',
+                coords: null
+              });
+              setClienteQuery('');
+              setProyectoQuery('');
+              setDestinationQuery('');
+            } catch (err) {
+              alert('❌ Error al actualizar');
+            } finally {
+              setSaving(false);
+            }
+          };
+
+    const handleDelete = async (id) => {
+      if (!confirm('¿Seguro que quieres eliminar este viaje?')) return;
+      try {
+        const response = await fetch(`${API_URL}/viajes/${id}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Error');
+        await cargarViajes();
+      } catch {
+        alert('❌ Error al eliminar');
+      }
+    };
+
+    const startEdit = (travel) => {
+      setEditingTravel(travel);
+      setFormData({
+        traveler: travel.traveler,
+        destination: travel.destination,
+        startDate: travel.startDate,
+        endDate: travel.endDate,
+        client: travel.client,
+        project: travel.project,
+        coords: travel.coords || null
+      });
+      setClienteQuery(travel.client || '');
+      setProyectoQuery(travel.project || '');
+      setDestinationQuery(travel.destination || '');
+      setShowAddForm(false);
+      setSelectedTravel(null);
+    };
+
+    const exportToCSV = () => {
+      const headers = ['Viajero', 'Destino', 'Fecha Inicio', 'Fecha Fin', 'Cliente', 'Proyecto'];
+      const rows = filteredTravelsForList.map(t => [t.traveler, t.destination, t.startDate, t.endDate, t.client, t.project]);
+      const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `viajes_2026.csv`;
+      a.click();
+    };
+
+    const travelers = [...new Set(travels.map(t => t.traveler))];
+    const clients = [...new Set(travels.map(t => t.client))];
+    const years = [...new Set(travels.map(t => new Date(t.startDate).getFullYear()))].sort((a, b) => b - a);
+    if (years.length === 0) years.push(new Date().getFullYear());
+
+    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    const getDateFilteredTravels = (travelsList) => {
+      return travelsList.filter(travel => {
+        const start = new Date(travel.startDate);
+        const end = new Date(travel.endDate);
+
+        switch(filterDateMode) {
+          case 'year': {
+            const year = parseInt(filterYear);
+            return start.getFullYear() === year ||
+                   end.getFullYear() === year ||
+                   (start.getFullYear() < year && end.getFullYear() > year);
+          }
+          case 'month': {
+            const targetYear = parseInt(filterYear);
+            const targetMonth = parseInt(filterMonth) - 1;
+            const monthStart = new Date(targetYear, targetMonth, 1);
+            const monthEnd = new Date(targetYear, targetMonth + 1, 0);
+            return (start <= monthEnd && end >= monthStart);
+          }
+          case 'range': {
+            if (!filterDateFrom && !filterDateTo) return true;
+            const from = filterDateFrom ? new Date(filterDateFrom) : new Date('1900-01-01');
+            const to = filterDateTo ? new Date(filterDateTo) : new Date('2100-12-31');
+            return (start <= to && end >= from);
+          }
+          case 'week': {
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            const weekAgo = new Date(now);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekAhead = new Date(now);
+            weekAhead.setDate(weekAhead.getDate() + 7);
+            return (start <= weekAhead && end >= weekAgo);
+          }
+          default:
+            return true;
+        }
+      });
+    };
+
+    const filteredTravelsForCalendarAndMap = travels.filter(t0 => {
+      const userMatch = filterUser === 'all' || t0.traveler === filterUser;
+      const clientMatch = filterClient === 'all' || t0.client === filterClient;
+      return userMatch && clientMatch;
+    });
+
+    const filteredTravelsForList = getDateFilteredTravels(travels.filter(t0 => {
+      const userMatch = filterUser === 'all' || t0.traveler === filterUser;
+      const clientMatch = filterClient === 'all' || t0.client === filterClient;
+      return userMatch && clientMatch;
+    }));
+
+    const totalPages = Math.ceil(filteredTravelsForList.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedTravels = filteredTravelsForList.slice(startIndex, endIndex);
+
+    const getActiveTravels = () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      return travels.filter(travel => {
+        const start = new Date(travel.startDate);
+        const end = new Date(travel.endDate);
+
+        switch(mapTimeFilter) {
+          case 'today': return today >= start && today <= end;
+          case 'week': {
+            const week = new Date(today);
+            week.setDate(week.getDate() + 7);
+            return start <= week && end >= today;
+          }
+          case 'month': {
+            const month = new Date(today);
+            month.setMonth(month.getMonth() + 1);
+            return start <= month && end >= today;
+          }
+          case 'range': {
+            if (!mapDateFrom && !mapDateTo) return true;
+            const from = mapDateFrom ? new Date(mapDateFrom) : new Date('1900-01-01');
+            const to = mapDateTo ? new Date(mapDateTo) : new Date('2100-12-31');
+            return start <= to && end >= from;
+          }
+          default:
+            return true;
+        }
+      });
+    };
+
+    const initMap = () => {
+      if (!window.L || !mapRef.current) return;
+
+      try {
+        const map = window.L.map(mapRef.current).setView([45, 10], 4);
+
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap',
+          maxZoom: 18
+        }).addTo(map);
+
+        markerClusterRef.current = window.L.markerClusterGroup({
+          showCoverageOnHover: false,
+          maxClusterRadius: 40
+        });
+        map.addLayer(markerClusterRef.current);
+
+        mapInstanceRef.current = map;
+        updateMapMarkers();
+      } catch (e) {
+        console.error('Error inicializando mapa:', e);
+      }
+    };
+
+    const updateMapMarkers = () => {
+      if (!mapInstanceRef.current || !window.L) return;
+      const map = mapInstanceRef.current;
+
+      if (markerClusterRef.current) markerClusterRef.current.clearLayers();
+
+      map.eachLayer(layer => {
+        if (layer instanceof window.L.Polyline && !(layer instanceof window.L.Polygon)) map.removeLayer(layer);
+      });
+
+      const activeTravels = getActiveTravels();
+
+      const hqIcon = window.L.divIcon({
+        html: '<div style="background:#c10230;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3)"></div>',
+        className: '',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+
+      window.L.marker(ingeteamHQ, { icon: hqIcon })
+        .bindPopup('<b>Ingeteam Indar Machines, SA</b><br>Beasain')
+        .addTo(markerClusterRef.current);
+
+      const viajesPorUbicacion = {};
+      activeTravels.forEach(travel => {
+        const key = `${travel.coords[0]},${travel.coords[1]}`;
+        if (!viajesPorUbicacion[key]) viajesPorUbicacion[key] = [];
+        viajesPorUbicacion[key].push(travel);
+      });
+
+      Object.entries(viajesPorUbicacion).forEach(([key, viajesEnUbicacion]) => {
+        const numViajes = viajesEnUbicacion.length;
+
+        if (numViajes === 1) {
+          const travel = viajesEnUbicacion[0];
+          const icon = window.L.divIcon({
+            html: `<div style="background:${travel.color};width:30px;height:30px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:12px">${travel.traveler.charAt(0)}</div>`,
+            className: '',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -15]
+          });
+
+          window.L.marker(travel.coords, { icon })
+            .bindPopup(`
+              <div style="min-width:200px">
+                <b style="color:${travel.color};font-size:16px">${travel.traveler}</b><br>
+                <b>📍 ${travel.destination}</b><br>
+                <span style="color:#636569">🏢 ${travel.client}</span><br>
+                <span style="color:#636569">💼 ${travel.project}</span><br>
+                <span style="color:#636569">📅 ${new Date(travel.startDate).toLocaleDateString('es-ES')} - ${new Date(travel.endDate).toLocaleDateString('es-ES')}</span>
+              </div>
+            `)
+            .addTo(markerClusterRef.current);
+
+          window.L.polyline([ingeteamHQ, travel.coords], {
+            color: travel.color,
+            weight: 2,
+            opacity: 0.6,
+            dashArray: '5, 10'
+          }).addTo(map);
+        } else {
+          const baseCoords = viajesEnUbicacion[0].coords;
+          const radius = 0.05;
+
+          viajesEnUbicacion.forEach((travel, index) => {
+            const angle = (360 / numViajes) * index;
+            const radians = (angle * Math.PI) / 180;
+            const offsetLat = baseCoords[0] + (radius * Math.cos(radians));
+            const offsetLng = baseCoords[1] + (radius * Math.sin(radians));
+
+            const icon = window.L.divIcon({
+              html: `<div style="background:${travel.color};width:30px;height:30px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:12px">${travel.traveler.charAt(0)}</div>`,
+              className: '',
+              iconSize: [30, 30],
+              iconAnchor: [15, 15],
+              popupAnchor: [0, -15]
+            });
+
+            window.L.marker([offsetLat, offsetLng], { icon })
+              .bindPopup(`
+                <div style="min-width:200px">
+                  <b style="color:${travel.color};font-size:16px">${travel.traveler}</b><br>
+                  <b>📍 ${travel.destination}</b><br>
+                  <span style="color:#636569">🏢 ${travel.client}</span><br>
+                  <span style="color:#636569">💼 ${travel.project}</span><br>
+                  <span style="color:#636569">📅 ${new Date(travel.startDate).toLocaleDateString('es-ES')} - ${new Date(travel.endDate).toLocaleDateString('es-ES')}</span>
+                </div>
+              `)
+              .addTo(markerClusterRef.current);
+
+            window.L.polyline([ingeteamHQ, [offsetLat, offsetLng]], {
+              color: travel.color,
+              weight: 2,
+              opacity: 0.6,
+              dashArray: '5, 10'
+            }).addTo(map);
+          });
+
+          const centralIcon = window.L.divIcon({
+            html: `<div style="background:#636569;width:40px;height:40px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:14px">${numViajes}</div>`,
+            className: '',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20]
+          });
+
+          const nombresViajeros = viajesEnUbicacion.map(v => `<li>${v.traveler} - ${v.client}</li>`).join('');
+          window.L.marker(baseCoords, { icon: centralIcon })
+            .bindPopup(`
+              <div style="min-width:220px">
+                <b style="color:#c10230;font-size:16px">${viajesEnUbicacion[0].destination}</b><br>
+                <b>${numViajes} viajeros:</b>
+                <ul style="margin:8px 0;padding-left:20px">${nombresViajeros}</ul>
+              </div>
+            `)
+            .addTo(markerClusterRef.current);
+        }
+      });
+
+      if (activeTravels.length > 0) {
+        const bounds = window.L.latLngBounds([ingeteamHQ, ...activeTravels.map(t0 => t0.coords)]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    };
+
+    const getDaysInMonth = (date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      return { daysInMonth: lastDay.getDate(), startingDayOfWeek: firstDay.getDay(), year, month };
+    };
+
+    const getTravelsForDay = (day) => {
+      const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      return filteredTravelsForCalendarAndMap.filter(t0 => dateStr >= t0.startDate && dateStr <= t0.endDate);
+    };
+
+    const renderCalendar = () => {
+      const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentMonth);
+      const days = [];
+
+      for (let i = 0; i < startingDayOfWeek; i++) {
+        days.push(<div key={`e-${i}`} className="p-2 bg-gray-50 h-28"></div>);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayTravels = getTravelsForDay(day);
+        const isToday = new Date().getDate() === day && new Date().getMonth() === month && new Date().getFullYear() === year;
+
+        days.push(
+          <div key={day} className={`p-2 border border-gray-200 bg-white hover:bg-gray-50 transition h-28 flex flex-col ${isToday ? 'ring-2 ring-red-700' : ''}`}>
+            <div className={`font-semibold text-sm mb-1 flex-shrink-0 ${isToday ? 'text-red-700' : 'text-gray-700'}`}>
+              {day} {isToday && '●'}
+            </div>
+            <div className="calendar-day-content flex-1 space-y-1">
+              {dayTravels.map(t0 => (
+                <div
+                  key={t0.id}
+                  className="text-xs p-1 rounded text-white truncate cursor-pointer hover:opacity-80 transition"
+                  style={{ backgroundColor: t0.color }}
+                  onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedTravel(t0);
+                    }}
+                  title="Click para ver detalles"
+                >
+                  {t0.traveler.split(' ')[0]}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div>
+          <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
+            <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-2 hover:bg-gray-100 rounded-full transition" title={t('calendarPrevMonth')}>
+              <Icons.ChevronLeft />
+            </button>
+            <h3 className="text-2xl font-bold" style={{ color: '#c10230' }}>
+              {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+            </h3>
+            <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-2 hover:bg-gray-100 rounded-full transition" title={t('calendarNextMonth')}>
+              <Icons.ChevronRight />
+            </button>
+          </div>
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="grid grid-cols-7 gap-0">
+              {t('weekdaysShort').map(day => (
+                <div key={day} className="p-3 font-bold text-center text-white" style={{ backgroundColor: '#c10230' }}>
+                  {day}
+                </div>
+              ))}
+              {days}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const renderMap = () => {
+      const activeTravels = getActiveTravels();
+      return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1 space-y-4">
+            <div className="bg-white rounded-lg shadow-lg p-4 border-2" style={{ borderColor: '#c10230' }}>
+              <div className="flex items-center gap-2 mb-4">
+                <Icons.Users />
+                <h3 className="font-bold text-lg" style={{ color: '#c10230' }}>{t('activeTravelers')}</h3>
+              </div>
+
+              <div className="flex gap-2 mb-4 flex-wrap">
+                {['today', 'week', 'month', 'range', 'all'].map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setMapTimeFilter(f)}
+                    className={`px-3 py-1 rounded text-sm font-semibold transition ${mapTimeFilter === f ? 'text-white' : 'border-2 hover:bg-gray-50'}`}
+                    style={mapTimeFilter === f ? { backgroundColor: '#c10230' } : { borderColor: '#636569', color: '#636569' }}
+                  >
+                    {f === 'today' ? t('today') : f === 'week' ? t('week') : f === 'month' ? t('month') : f === 'range' ? t('range') : t('all')}
+                  </button>
+                ))}
+              </div>
+
+              {mapTimeFilter === 'range' && (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-600">{t('from')}</label>
+                    <input type="date" value={mapDateFrom} onChange={(e) => setMapDateFrom(e.target.value)} className="w-full px-2 py-1 border rounded text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600">{t('to')}</label>
+                    <input type="date" value={mapDateTo} onChange={(e) => setMapDateTo(e.target.value)} className="w-full px-2 py-1 border rounded text-sm" />
+                  </div>
+                </div>
+              )}
+
+              <div className="text-sm mb-3" style={{ color: '#636569' }}>
+                <strong>{activeTravels.length}</strong> {activeTravels.length === 1 ? 'viajero' : 'viajeros'}
+              </div>
+
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {activeTravels.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    <div className="flex justify-center mb-2"><Icons.Globe /></div>
+                    <p className="text-sm">{t('noActive')}</p>
+                  </div>
+                ) : (
+                  activeTravels.map(t0 => (
+                    <div key={t0.id} className="p-3 rounded-lg border-l-4 bg-gray-50 hover:bg-gray-100 transition cursor-pointer" style={{ borderColor: t0.color }} onClick={() => setSelectedTravel(t0)}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: t0.color }}>
+                          {t0.traveler.charAt(0)}
+                        </div>
+                        <span className="font-bold text-sm">{t0.traveler}</span>
+                      </div>
+                      <div className="text-xs space-y-1 ml-8 text-gray-600">
+                        <div>📍 {t0.destination}</div>
+                        <div>🏢 {t0.client}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2" style={{ borderColor: '#c10230' }}>
+              <div className="bg-gradient-to-r from-red-50 to-white p-4 border-b-2 flex items-center justify-between" style={{ borderColor: '#c10230' }}>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Icons.Globe />
+                    <h3 className="font-bold text-lg" style={{ color: '#c10230' }}>{t('mapTitle')}</h3>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">{t('mapAutoUpdate')}</p>
+                </div>
+                <button onClick={() => cargarViajes()} className="p-2 hover:bg-gray-100 rounded-lg transition" title={t('updateNow')}>
+                  <Icons.Refresh />
+                </button>
+              </div>
+              <div ref={mapRef} style={{ height: '600px' }} className="bg-gray-100"></div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const renderList = () => {
+      return (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg shadow-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="flex items-center gap-2">
+                <Icons.User />
+                <select value={filterUser} onChange={e => setFilterUser(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700">
+                  <option value="all">Todos los viajeros</option>
+                  {travelers.map(u => <option key={u} value={u}>{u}</option>)}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Icons.Building />
+                <select value={filterClient} onChange={e => setFilterClient(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700">
+                  <option value="all">Todos los clientes</option>
+                  {clients.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Icons.Calendar />
+                <select value={filterDateMode} onChange={e => setFilterDateMode(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700">
+                  <option value="all">Todo el histórico</option>
+                  <option value="week">Esta semana</option>
+                  <option value="month">Mes específico</option>
+                  <option value="year">Año específico</option>
+                  <option value="range">Rango personalizado</option>
+                </select>
+              </div>
+
+              {filterDateMode === 'year' && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Año:</span>
+                  <select value={filterYear} onChange={e => setFilterYear(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700">
+                    {years.map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                </div>
+              )}
+
+              {filterDateMode === 'month' && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600 whitespace-nowrap">Año:</span>
+                    <select value={filterYear} onChange={e => setFilterYear(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700">
+                      {years.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600 whitespace-nowrap">Mes:</span>
+                    <select value={filterMonth} onChange={e => setFilterMonth(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700">
+                      {monthNames.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {filterDateMode === 'range' && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600 whitespace-nowrap">Desde:</span>
+                    <input type="date" value={filterDateFrom} onChange={e => setFilterDateFrom(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600 whitespace-nowrap">Hasta:</span>
+                    <input type="date" value={filterDateTo} onChange={e => setFilterDateTo(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700" />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex justify-end mt-3 gap-2">
+                <button
+                    disabled
+                    className="px-4 py-2 border-2 border-gray-300 text-gray-400 rounded-lg cursor-not-allowed flex items-center gap-2 font-semibold text-sm"
+                    title="Disponible solo en la versión de escritorio"
+                    >
+                    <Icons.Download /> {t('exportCSV')} (Desktop)
+                    </button>
+
+              <button
+                    disabled
+                    className="px-4 py-2 border-2 border-gray-300 text-gray-400 rounded-lg cursor-not-allowed flex items-center gap-2 font-semibold text-sm"
+                    title="Disponible solo en la versión de escritorio"
+                    >
+                    <Icons.Chart />
+                    {t('openPowerBI')} (Desktop)
+                    </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+              <div>
+                <h2 className="text-2xl font-bold" style={{ color: '#c10230' }}>{t('history')}</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {filteredTravelsForList.length === 0 ? t('noResults') : `Mostrando ${startIndex + 1}-${Math.min(endIndex, filteredTravelsForList.length)} de ${filteredTravelsForList.length} viajes`}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-600">{t('perPage')}:</label>
+                <select value={itemsPerPage} onChange={e => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }} className="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-700">
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {paginatedTravels.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <div className="flex justify-center mb-3"><Icons.Briefcase /></div>
+                  <p>{t('noTripsWithFilters')}</p>
+                  {filterDateMode !== 'all' && (
+                    <button onClick={() => { setFilterDateMode('all'); setFilterUser('all'); setFilterClient('all'); }} className="mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                      {t('clearFilters')}
+                    </button>
+                  )}
+                </div>
+              ) : (
+                paginatedTravels.map(t0 => (
+                  <div key={t0.id} className="border-l-4 p-4 bg-gray-50 rounded hover:shadow-md transition" style={{ borderColor: t0.color }}>
+                    <div className="flex flex-wrap gap-4 items-start justify-between">
+                      <div className="flex flex-wrap gap-4 flex-1">
+                        <div className="flex-1 min-w-48">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Icons.User />
+                            <span className="font-bold">{t0.traveler}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Icons.MapPin />
+                            <span>{t0.destination}</span>
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-48">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Icons.Building />
+                            <span className="font-semibold">{t0.client}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Icons.Briefcase />
+                            <span>{t0.project}</span>
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-48">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Icons.Calendar />
+                            <span>{new Date(t0.startDate).toLocaleDateString('es-ES')} - {new Date(t0.endDate).toLocaleDateString('es-ES')}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => startEdit(t0)} className="p-2 hover:bg-blue-50 rounded transition text-blue-600" title="Editar viaje">
+                          <Icons.Edit />
+                        </button>
+                        <button onClick={() => handleDelete(t0.id)} className="p-2 hover:bg-red-50 rounded transition text-red-600" title="Eliminar viaje">
+                          <Icons.Trash />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-between border-t pt-4 flex-wrap gap-4">
+                <div className="text-sm text-gray-600">
+                  Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                    title="Primera página"
+                  >
+                    <Icons.ChevronsLeft />
+                  </button>
+
+                  <button
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                    title="Anterior"
+                  >
+                    <Icons.ChevronLeft />
+                  </button>
+
+                  <button
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                    title="Siguiente"
+                  >
+                    <Icons.ChevronRight />
+                  </button>
+
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                    title="Última página"
+                  >
+                    <Icons.ChevronsRight />
+                  </button>
+                </div>
+
+                <div className="text-sm text-gray-600">
+                  {startIndex + 1}-{Math.min(endIndex, filteredTravelsForList.length)} de {filteredTravelsForList.length}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    if (loading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 mx-auto mb-4" style={{ borderTopColor: '#c10230' }}></div>
+            <p className="text-gray-600 font-semibold">Cargando...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-md border-2 border-red-200">
+            <h2 className="text-xl font-bold text-red-700 mb-4">{t('connectionErrorTitle')}</h2>
+            <p className="mb-4">{error}</p>
+            <button onClick={cargarViajes} className="px-6 py-2 bg-red-700 text-white rounded-lg w-full">{t('retry')}</button>
+          </div>
+        </div>
+      );
+    }
+    if (!currentUser) {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md border-2" style={{borderColor:'#c10230'}}>
+              <h1 className="text-2xl font-bold mb-2" style={{color:'#c10230'}}>{t('title')}</h1>
+              <p className="text-sm text-gray-600 mb-6">Selecciona un perfil para continuar</p>
+
+              <button
+                className="w-full px-4 py-3 rounded-lg text-white font-semibold"
+                style={{backgroundColor:'#c10230'}}
+                onClick={() => setShowUserPicker(true)}
+              >
+                Usuario
+              </button>
+
+              {showUserPicker && (
+                <div className="mt-4 border rounded-lg overflow-hidden">
+                  {users.length === 0 ? (
+                    <div className="p-4 text-sm text-gray-600">No hay usuarios en catálogo.</div>
+                  ) : (
+                    users.map(u => (
+                      <button
+                        key={u.id}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center justify-between"
+                        onClick={() => {
+                          setCurrentUser(u);
+                          localStorage.setItem('currentUser', JSON.stringify(u));
+                          setShowUserPicker(false);
+                        }}
+                      >
+                        <span className="font-semibold">{u.name}</span>
+                        <span className="w-4 h-4 rounded-full" style={{backgroundColor: u.color}}></span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <header className="bg-white shadow-md">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <img src="" alt="Logo" className="h-12 md:h-16"/>
+              <div className="text-center flex-1">
+                <h1 className="text-xl md:text-2xl font-bold" style={{color: '#c10230'}}>{t('title')}</h1>
+                <p className="text-sm text-gray-600">
+                  {travels.length} viajes • {t('view')}: {activeView === 'calendar' ? t('calendar') : activeView === 'map' ? t('map') : t('list')}
+                </p>
+              </div>
+
+              <select value={lang} onChange={(e) => setLang(e.target.value)} className="px-2 py-1 border rounded-lg text-sm" title="Language">
+                <option value="es">ES</option>
+                <option value="en">EN</option>
+              </select>
+
+              <button onClick={cargarViajes} className="p-2 hover:bg-gray-100 rounded-lg" title="Actualizar">
+                <Icons.Refresh />
+              </button>
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full text-sm border">
+                <span className="w-3 h-3 rounded-full" style={{backgroundColor: currentUser.color}}></span>
+                <span>{currentUser.name}</span>
+                <button
+                  className="ml-2 text-xs text-gray-500 hover:underline"
+                  onClick={() => { localStorage.removeItem('currentUser'); setCurrentUser(null); }}
+                >
+                  Cambiar
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 px-4 py-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
+              <div className="flex flex-wrap gap-3 items-center justify-between">
+                <div className="flex gap-2 flex-wrap">
+                  <button onClick={() => setActiveView('calendar')} className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition ${activeView === 'calendar' ? 'text-white shadow-md' : 'border-2 hover:bg-gray-50'}`} style={activeView === 'calendar' ? {backgroundColor: '#c10230'} : {borderColor: '#636569', color: '#636569'}}>
+                    <Icons.Calendar /> <span className="hidden md:inline">{t('calendar')}</span>
+                  </button>
+                  <button onClick={() => setActiveView('map')} className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition ${activeView === 'map' ? 'text-white shadow-md' : 'border-2 hover:bg-gray-50'}`} style={activeView === 'map' ? {backgroundColor: '#c10230'} : {borderColor: '#636569', color: '#636569'}}>
+                    <Icons.Map /> <span className="hidden md:inline">{t('map')}</span>
+                  </button>
+                  <button onClick={() => setActiveView('list')} className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition ${activeView === 'list' ? 'text-white shadow-md' : 'border-2 hover:bg-gray-50'}`} style={activeView === 'list' ? {backgroundColor: '#c10230'} : {borderColor: '#636569', color: '#636569'}}>
+                    <Icons.List /> <span className="hidden md:inline">{t('list')}</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveView('stats')}
+                    className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition ${activeView === 'stats' ? 'text-white shadow-md' : 'border-2 hover:bg-gray-50'}`}
+                    style={activeView === 'stats' ? {backgroundColor:'#c10230'} : {borderColor:'#636569', color:'#636569'}} >
+                    <Icons.Chart /> <span className="hidden md:inline">Stats</span>
+                  </button>
+
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <button onClick={() => { setShowAddForm(!showAddForm); setEditingTravel(null); }} className="px-6 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 flex items-center gap-2 font-semibold shadow-md">
+                    <Icons.Plus /> <span className="hidden md:inline">{t('newTrip')}</span>
+                  </button>
+                  <button
+                      onClick={() => setShowCatalogImport(true)}
+                      className="px-4 py-2 border-2 rounded-lg font-semibold hover:bg-gray-50"
+                      style={{borderColor:'#636569', color:'#636569'}}
+                    >
+                      Actualizar catálogos
+                    </button>
+                </div>
+              </div>
+            </div>
+
+            {(showAddForm || editingTravel) && (
+              <div  className="bg-white rounded-lg shadow-lg p-6 mb-6 border-2"
+              style={{ borderColor: editingTravel ? '#2563eb' : '#c10230' }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold" style={{color: editingTravel ? '#2563eb' : '#c10230'}}>
+                    {editingTravel ? `✏️ ${t('editTrip')}` : `➕ ${t('addTrip')}`}
+                  </h2>
+                  <button onClick={() => {
+                    setShowAddForm(false);
+                    setEditingTravel(null);
+                    setFormData({ traveler: '', destination: '', startDate: '', endDate: '', client: '', project: '', coords: null });
+                    setClienteQuery('');
+                    setProyectoQuery('');
+                    setDestinationQuery('');
+                    setShowLocationModal(false);
+                  }} className="p-1 hover:bg-gray-100 rounded">
+                    <Icons.X />
+                  </button>
+                </div>
+
+                <form onSubmit={editingTravel ? handleEdit : handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-1 text-gray-700">{t('traveler')} *</label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700"
+                      value={editingTravel ? (formData.traveler || '') : (currentUser?.name || '')}
+                      readOnly
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <label className="block text-sm font-semibold mb-1 text-gray-700">{t('destination')} *</label>
+
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-700"
+                      value={destinationQuery || formData.destination}
+                      placeholder="Escribe para buscar destino..."
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setDestinationQuery(val);
+                        setFormData({ ...formData, destination: val, coords: null });
+                        setShowDestDropdown(true);
+                      }}
+                      onFocus={() => setShowDestDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowDestDropdown(false), 150)}
+                    />
+
+                    {showDestDropdown && (
+                      <div className="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {filtrarLocations(destinationQuery || formData.destination).slice(0, 30).map((l, idx) => (
+                          <div
+                            key={idx}
+                            className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                            onMouseDown={() => {
+                              setFormData({ ...formData, destination: l.name, coords: l.coords });
+                              setDestinationQuery(l.name);
+                              setShowDestDropdown(false);
+                            }}
+                          >
+                            {l.name}
+                          </div>
+                        ))}
+
+                        {(destinationQuery || formData.destination).trim().length >= 2 && (
+                          <div
+                            className="px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 cursor-pointer border-t"
+                            onMouseDown={() => {
+                              const name = (destinationQuery || formData.destination).trim();
+                              setNewLocationName(name);
+                              setNewLocationCoords(null);
+                              setShowLocationModal(true);
+                              setShowDestDropdown(false);
+                              setGeoQuery('');
+                              setGeoResults([]);
+                            }}
+                          >
+                            + {t('createLocation')}: “{(destinationQuery || formData.destination).trim()}”
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <p className="text-xs text-gray-500 mt-1">{t('destinationHelp')}</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-1 text-gray-700">{t('startDate')} *</label>
+                    <input type="date" required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-700"
+                      value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})}/>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-1 text-gray-700">{t('endDate')} *</label>
+                    <input type="date" required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-700"
+                      value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})}/>
+                  </div>
+
+                  <div className="relative">
+                    <label className="block text-sm font-semibold mb-1 text-gray-700">{t('client')} *</label>
+
+                    <input type="text" required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-700"
+                      value={clienteQuery || formData.client}
+                      placeholder="Escribe para buscar..."
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setClienteQuery(val);
+                        setFormData({ ...formData, client: val });
+                        setMostrarDropdownClientes(true);
+                      }}
+                      onFocus={() => setMostrarDropdownClientes(true)}
+                      onBlur={() => setTimeout(() => setMostrarDropdownClientes(false), 150)}
+                    />
+
+                    {mostrarDropdownClientes && (
+                      <div className="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {getClientesFiltrados(clientesCatalogo, clienteQuery || formData.client).slice(0, 30).map((c, idx) => {
+                          const name = typeof c === 'string' ? c : c.name;
+                          return (
+                            <div
+                              key={idx}
+                              className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                              onMouseDown={() => {
+                                setFormData({ ...formData, client: name });
+                                setClienteQuery(name);
+                                setMostrarDropdownClientes(false);
+                              }}
+                            >
+                              {name}
+                            </div>
+                          );
+                        })}
+
+                        {(clienteQuery || formData.client).trim().length >= 3 && (
+                          <div
+                            className="px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 cursor-pointer border-t"
+                            onMouseDown={() => {
+                              setFormData({ ...formData, client: (clienteQuery || formData.client).trim() });
+                              setMostrarDropdownClientes(false);
+                            }}
+                          >
+                            + Usar cliente nuevo: “{(clienteQuery || formData.client).trim()}”
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <p className="text-xs text-gray-500 mt-1">
+                    {t('clientHelp')} ({clientesCatalogo.length} {t('client')})
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                      <label className="block text-sm font-semibold mb-1 text-gray-700">{t('project')} *</label>
+
+                      <input
+                        type="text"
+                        required
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-700"
+                        value={proyectoQuery || formData.project}
+                        placeholder="Escribe para buscar..."
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setProyectoQuery(val);
+                          setFormData({ ...formData, project: val });
+                          setMostrarDropdownProyectos(true);
+                        }}
+                        onFocus={() => setMostrarDropdownProyectos(true)}
+                        onBlur={() => setTimeout(() => setMostrarDropdownProyectos(false), 150)}
+                      />
+
+                      {mostrarDropdownProyectos && (
+                        <div className="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          {getClientesFiltrados(proyectosCatalogo, proyectoQuery || formData.project).slice(0, 30).map((p, idx) => {
+                            const name = typeof p === 'string' ? p : p.name;
+                            return (
+                              <div
+                                key={idx}
+                                className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                                onMouseDown={() => {
+                                  setFormData({ ...formData, project: name });
+                                  setProyectoQuery(name);
+                                  setMostrarDropdownProyectos(false);
+                                }}
+                              >
+                                {name}
+                              </div>
+                            );
+                          })}
+
+                          {(proyectoQuery || formData.project).trim().length >= 3 && (
+                            <div
+                              className="px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 cursor-pointer border-t"
+                              onMouseDown={() => {
+                                const name = (proyectoQuery || formData.project).trim();
+                                setFormData({ ...formData, project: name });
+                                setProyectoQuery(name);
+                                setMostrarDropdownProyectos(false);
+                              }}
+                            >
+                              + Usar nuevo: “{(proyectoQuery || formData.project).trim()}”
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <p className="text-xs text-gray-500 mt-1">
+                        Catálogo unificado: {proyectosCatalogo.length}
+                      </p>
+                    </div>
+
+                  <div className="md:col-span-2 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddForm(false);
+                        setEditingTravel(null);
+                        setFormData({ traveler: '', destination: '', startDate: '', endDate: '', client: '', project: '', coords: null });
+                        setClienteQuery('');
+                        setProyectoQuery('');
+                        setDestinationQuery('');
+                      }}
+                      className="px-6 py-2 border-2 border-gray-600 text-gray-600 rounded-lg hover:bg-gray-50 font-semibold"
+                    >
+                      {t('cancel')}
+                    </button>
+
+                    <button type="submit" disabled={saving} className={`px-6 py-2 text-white rounded-lg font-semibold ${editingTravel ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-700 hover:bg-red-800'}`}>
+                      {saving ? t('saving') : (editingTravel ? t('update') : t('save'))}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {activeView === 'calendar' && renderCalendar()}
+            {activeView === 'map' && renderMap()}
+            {activeView === 'list' && renderList()}
+            {activeView === 'stats' && renderStats()}
+
+            {selectedTravel && (
+                  <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                    onMouseDown={() => setSelectedTravel(null)}
+                  >
+                    <div
+                      className="bg-white rounded-lg shadow-2xl max-w-md w-full border-2"
+                      style={{ borderColor: selectedTravel.color }}
+                      onMouseDown={(e) => e.stopPropagation()}
+                    >
+                      <div className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xl font-bold" style={{ color: selectedTravel.color }}>
+                            {t('details') ?? 'Detalle del Viaje'}
+                          </h3>
+                          <button onClick={() => setSelectedTravel(null)} className="p-1 hover:bg-gray-100 rounded">
+                            <Icons.X />
+                          </button>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                              style={{ backgroundColor: selectedTravel.color }}
+                            >
+                              {selectedTravel.traveler?.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-bold text-lg">{selectedTravel.traveler}</div>
+                              <div className="text-sm text-gray-500">{t('traveler')}</div>
+                            </div>
+                          </div>
+
+                          <div className="border-t pt-3 space-y-2">
+                            <div className="flex items-start gap-2">
+                              <Icons.MapPin />
+                              <div>
+                                <div className="font-semibold">{selectedTravel.destination}</div>
+                                <div className="text-sm text-gray-500">{t('destination')}</div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-start gap-2">
+                              <Icons.Building />
+                              <div>
+                                <div className="font-semibold">{selectedTravel.client}</div>
+                                <div className="text-sm text-gray-500">{t('client')}</div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-start gap-2">
+                              <Icons.Briefcase />
+                              <div>
+                                <div className="font-semibold">{selectedTravel.project}</div>
+                                <div className="text-sm text-gray-500">{t('project')}</div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-start gap-2">
+                              <Icons.Calendar />
+                              <div>
+                                <div className="font-semibold">
+                                  {new Date(selectedTravel.startDate).toLocaleDateString(lang === 'en' ? 'en-GB' : 'es-ES')}
+                                  {' - '}
+                                  {new Date(selectedTravel.endDate).toLocaleDateString(lang === 'en' ? 'en-GB' : 'es-ES')}
+                                </div>
+                                <div className="text-sm text-gray-500">Dates</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 flex gap-2">
+                          <button
+                            onClick={() => { startEdit(selectedTravel); setSelectedTravel(null); }}
+                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+                          >
+                            <Icons.Edit /> {t('editTrip')}
+                          </button>
+                          <button
+                            onClick={() => setSelectedTravel(null)}
+                            className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                          >
+                            {t('close')}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+          </div>
+
+          {showLocationModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowLocationModal(false)}>
+              <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl border-2" style={{ borderColor: '#c10230' }} onClick={(e) => e.stopPropagation()}>
+                <div className="p-4 border-b flex items-center justify-between">
+                  <div>
+                    <div className="font-bold text-lg" style={{ color: '#c10230' }}>{t('createLocation')}</div>
+                    <div className="text-sm text-gray-600">{t('clickMapToSet')}</div>
+                  </div>
+                  <button className="p-1 hover:bg-gray-100 rounded" onClick={() => setShowLocationModal(false)}>
+                    <Icons.X />
+                  </button>
+                </div>
+
+                <div className="p-4 space-y-3">
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700">{t('name')}</label>
+                    <input className="w-full px-3 py-2 border rounded-lg" value={newLocationName} onChange={(e) => setNewLocationName(e.target.value)} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
+                    <div><b>Lat:</b> {newLocationCoords ? newLocationCoords[0].toFixed(6) : '-'}</div>
+                    <div><b>Lon:</b> {newLocationCoords ? newLocationCoords[1].toFixed(6) : '-'}</div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700">Buscar lugar</label>
+                    <div className="flex gap-2">
+                      <input
+                        className="w-full px-3 py-2 border rounded-lg"
+                        value={geoQuery}
+                        placeholder="Ej: London, Heathrow / Paris / Berlin..."
+                        onChange={(e) => setGeoQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            buscarLugar(geoQuery);
+                          }
+                        }}
+                      />
+                      <button
+                        className="px-4 py-2 border rounded-lg font-semibold"
+                        disabled={geoLoading}
+                        onClick={() => buscarLugar(geoQuery)}
+                      >
+                        {geoLoading ? '...' : 'Buscar'}
+                      </button>
+                    </div>
+
+                    {geoResults.length > 0 && (
+                      <div className="border rounded-lg overflow-hidden max-h-40 overflow-y-auto">
+                        {geoResults.map((r, idx) => (
+                          <button
+                            key={idx}
+                            className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
+                            onClick={() => {
+                              const lat = parseFloat(r.lat);
+                              const lon = parseFloat(r.lon);
+                              if (Number.isNaN(lat) || Number.isNaN(lon)) return;
+
+                              const latlng = [lat, lon];
+                              setNewLocationCoords(latlng);
+
+                              // centrar mapa + marcador
+                              if (miniMapInstanceRef.current) {
+                                miniMapInstanceRef.current.setView(latlng, 12);
+                              }
+                              if (miniMarkerRef.current) {
+                                miniMarkerRef.current.setLatLng(latlng);
+                              } else if (window.L && miniMapInstanceRef.current) {
+                                miniMarkerRef.current = window.L.marker(latlng).addTo(miniMapInstanceRef.current);
+                              }
+                            }}
+                          >
+                            {r.display_name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div ref={miniMapRef} style={{ height: '350px' }} className="bg-gray-100 rounded"></div>
+
+                  <div className="flex justify-end gap-2">
+                    <button className="px-4 py-2 border rounded-lg" onClick={() => setShowLocationModal(false)}>
+                      {t('cancel')}
+                    </button>
+
+                    <button
+                      className="px-4 py-2 text-white rounded-lg font-semibold disabled:opacity-40"
+                      style={{ backgroundColor: '#c10230' }}
+                      disabled={!newLocationName.trim() || !newLocationCoords}
+                      onClick={async () => {
+                        try {
+                          const payload = { name: newLocationName.trim(), coords: newLocationCoords };
+                          const resp = await fetch(`${API_URL}/locations`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                          });
+
+                          if (!resp.ok) {
+                            const err = await resp.json().catch(() => ({}));
+                            alert(err.error || 'No se pudo guardar ubicación');
+                            return;
+                          }
+
+                          const saved = await resp.json();
+                          await cargarLocations();
+
+                          setFormData({ ...formData, destination: saved.name, coords: saved.coords });
+                          setDestinationQuery(saved.name);
+
+                          setShowLocationModal(false);
+                        } catch (e) {
+                          alert('Error guardando ubicación');
+                        }
+                      }}
+                    >
+                      {t('saveLocation')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {showCatalogImport && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                  onClick={() => setShowCatalogImport(false)}>
+                <div className="bg-white rounded-lg shadow-2xl w-full max-w-xl border-2"
+                    style={{ borderColor: '#c10230' }}
+                    onClick={(e) => e.stopPropagation()}>
+                  <div className="p-4 border-b flex items-center justify-between">
+                    <div className="font-bold text-lg" style={{ color: '#c10230' }}>Actualizar catálogos</div>
+                    <button className="p-1 hover:bg-gray-100 rounded" onClick={() => setShowCatalogImport(false)}>
+                      <Icons.X />
+                    </button>
+                  </div>
+
+                  {!DEMO_WEB && (
+                  <div className="p-4 space-y-4">
+                   
+                    <SimpleExcelImport
+                      title="Clientes"
+                      endpoint={`${API_URL}/catalogos/clientes/import-excel`}
+                      onDone={async () => { await cargarCatalogoClientes(); }}
+                    />
+                    <SimpleExcelImport
+                      title="Ofertas/Pedidos/Oportunidades"
+                      endpoint={`${API_URL}/catalogos/proyectos/import-excel`}
+                      onDone={async () => { await cargarCatalogoProyectos(); }}
+                    />
+                  </div>)}
+                  {DEMO_WEB && (
+                    <div className="border rounded-lg p-4 text-sm text-gray-600 bg-gray-50">
+                        <p className="font-semibold mb-1">Importación de catálogos (Demo Web)</p>
+                        <p>
+                        La importación de datos desde Excel está deshabilitada en la versión web
+                        de demostración.
+                        </p>
+                        <p className="mt-1">
+                        Esta funcionalidad está disponible en la aplicación de escritorio.
+                        </p>
+                    </div>
+                    )}
+                </div>
+              </div>
+            )}
+        </main>
+
+        <footer className="bg-white border-t-4 shadow-inner" style={{borderColor: '#c10230'}}>
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Versión:</span>
+                <span className="px-2 py-1 bg-gray-100 rounded font-mono">v2.3.0</span>
+                <span className="mx-2">|</span>
+                <span className="text-xs flex items-center gap-1">
+                  <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                  Conectado
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <a href="mailto:ibai354@gmail.com" className="hover:underline font-semibold" style={{color: '#c10230'}}>📧ibai354@gmail.com</a>
+                <span>|</span>
+                <span>2026 Ibai Araña </span>
+                <span>|</span>
+                <span>Portfolio</span>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  ReactDOM.render(<App />, document.getElementById('root'));
+</script>
+</body>
+</html>
